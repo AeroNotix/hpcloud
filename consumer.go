@@ -17,7 +17,6 @@ func Authenticate(user, pass string) *Access {
 		fmt.Println(err)
 		return nil
 	}
-	fmt.Println(string(d))
 	resp, err := http.Post(REGION_URL+"tokens", "application/json", strings.NewReader(string(d)))
 	if err != nil {
 		fmt.Println(err)
@@ -31,7 +30,6 @@ func Authenticate(user, pass string) *Access {
 	}
 	a := &Access{}
 	err = json.Unmarshal(body, a)
-	fmt.Println(string(body))
 	if err != nil {
 		fmt.Println(err)
 		return nil
