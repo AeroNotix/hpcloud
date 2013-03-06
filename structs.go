@@ -43,7 +43,7 @@ type User struct {
 
 type Token struct {
 	Expires string      `json:"expires"`
-	ID      string      `json:"expires"`
+	ID      string      `json:"id"`
 	Tenant  interface{} `json:"tenant"`
 }
 
@@ -53,6 +53,7 @@ type Access struct {
 		User     `json:"user"`
 		Catalogs []ServiceCatalog `json:"serviceCatalog"`
 	} `json:"access"`
+	Fail FailureResponse
 }
 
 type BadRequest struct {
