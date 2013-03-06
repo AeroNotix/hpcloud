@@ -54,3 +54,51 @@ type Access struct {
 		Catalogs []ServiceCatalog `json:"serviceCatalog"`
 	} `json:"access"`
 }
+
+type BadRequest struct {
+	B struct {
+		Message string `json:"message"`
+		Details string `json:"details"`
+		Code    int64  `json:"code"`
+	} `json:"BadRequest"`
+}
+
+type Unauthorized struct {
+	U struct {
+		Code            int64  `json:"code"`
+		Details         string `json:"details"`
+		Message         string `json:"message"`
+		OtherAttributes struct {
+		} `json:"otherAttributes"`
+	} `json:"unauthorized"`
+}
+
+type FailureResponse interface {
+	Code() int64
+	Details() string
+	Message() string
+}
+
+func (u Unauthorized) Code() int64 {
+	return u.U.Code
+}
+
+func (b BadRequest) Code() int64 {
+	return b.B.Code
+}
+
+func (u Unauthorized) Details() string {
+	return u.U.Details
+}
+
+func (b BadRequest) Details() string {
+	return b.B.Details
+}
+
+func (u Unauthorized) Message() string {
+	return u.U.Message
+}
+
+func (b BadRequest) Message() string {
+	return b.B.Message
+}
