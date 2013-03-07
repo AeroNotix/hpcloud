@@ -105,6 +105,56 @@ func (a Access) TenantForName(name string) (string, error) {
 	return "", errors.New("No tenant ID for the supplied name.")
 }
 
+func (a Access) ScopeToken(name string) (*Access, error) {
+	t := TenantScope{
+		Scope{
+			name,
+			SubToken{
+				ID: a.Token(),
+			},
+		},
+	}
+	b, err := json.Marshal(t)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := http.Post(REGION_URL+"tokens", "application/json", strings.NewReader(string(b)))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	newa := &Access{}
+	switch resp.StatusCode {
+	case http.StatusOK:
+		err = json.Unmarshal(body, newa)
+		if err != nil {
+			return nil, err
+		}
+		return newa, nil
+	case http.StatusBadRequest:
+		b := BadRequest{}
+		err = json.Unmarshal(body, &b)
+		if err != nil {
+			return nil, err
+		}
+		newa.Fail = b
+		return newa, nil
+	case http.StatusUnauthorized:
+		u := Unauthorized{}
+		err = json.Unmarshal(body, &u)
+		if err != nil {
+			return nil, err
+		}
+		newa.Fail = u
+		return newa, nil
+	}
+	panic("Unreachable!")
+}
+
 func (a Access) ObjectStoreUpload(fpath, tenant, endpoint string) {
 	f, err := os.Open(fpath)
 	if err != nil {
