@@ -19,8 +19,16 @@ import (
 )
 
 func Authenticate(user, pass string) (*Access, error) {
-	l := Login{auth{credentials{User: user, Pass: pass}}}
+	l := Login{
+		auth{
+			credentials{
+				User: user, Pass: pass,
+			},
+			"91526641119774",
+		},
+	}
 	d, err := json.Marshal(l)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -31,6 +39,7 @@ func Authenticate(user, pass string) (*Access, error) {
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
+
 	if err != nil {
 		return nil, err
 	}

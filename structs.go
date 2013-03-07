@@ -5,7 +5,8 @@ type Login struct {
 }
 
 type auth struct {
-	Creds credentials `json:"passwordCredentials"`
+	Creds    credentials `json:"passwordCredentials"`
+	TenantID string      `json:"tenantId"`
 }
 
 type credentials struct {
@@ -79,6 +80,19 @@ type Unauthorized struct {
 		OtherAttributes struct {
 		} `json:"otherAttributes"`
 	} `json:"unauthorized"`
+}
+
+type SubToken struct {
+	ID string `json:"id"`
+}
+
+type Scope struct {
+	TenantName string   `json:"tenantName"`
+	S          SubToken `json:"token"`
+}
+
+type TenantScope struct {
+	S Scope `json:"auth"`
 }
 
 type Tenant struct {
