@@ -49,11 +49,18 @@ type Token struct {
 
 type Access struct {
 	A struct {
-		Token    `json:"token"`
-		User     `json:"user"`
+		Token    Token            `json:"token"`
+		User     User             `json:"user"`
 		Catalogs []ServiceCatalog `json:"serviceCatalog"`
 	} `json:"access"`
-	Fail FailureResponse
+	Fail      FailureResponse
+	Tenants   []Tenant
+	SecretKey string
+	AccessKey string
+}
+
+func (a Access) Token() string {
+	return a.A.Token.ID
 }
 
 type BadRequest struct {
@@ -72,6 +79,19 @@ type Unauthorized struct {
 		OtherAttributes struct {
 		} `json:"otherAttributes"`
 	} `json:"unauthorized"`
+}
+
+type Tenant struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Enabled     bool   `json:"enabled"`
+	Created     string `json:"created"`
+	Updated     string `json:"updated"`
+}
+
+type Tenants struct {
+	T []Tenant `json:"tenants"`
 }
 
 type FailureResponse interface {
