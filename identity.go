@@ -1,5 +1,18 @@
 package hpcloud
 
+type Access struct {
+	A struct {
+		Token    Token            `json:"token"`
+		User     User             `json:"user"`
+		Catalogs []ServiceCatalog `json:"serviceCatalog"`
+	} `json:"access"`
+	Fail      FailureResponse
+	Tenants   []Tenant
+	SecretKey string
+	AccessKey string
+	TenantID  string
+}
+
 type Login struct {
 	Auth auth `json:"auth"`
 }
@@ -27,9 +40,6 @@ type ServiceCatalog struct {
 	Endpoints []Endpoint `json:"endpoints"`
 }
 
-type AuthResponse struct {
-}
-
 type Role struct {
 	ID        string `json:"id"`
 	ServiceID string `json:"serviceId"`
@@ -48,43 +58,8 @@ type Token struct {
 	Tenant  interface{} `json:"tenant"`
 }
 
-type Access struct {
-	A struct {
-		Token    Token            `json:"token"`
-		User     User             `json:"user"`
-		Catalogs []ServiceCatalog `json:"serviceCatalog"`
-	} `json:"access"`
-	Fail      FailureResponse
-	Tenants   []Tenant
-	SecretKey string
-	AccessKey string
-	TenantID  string
-}
-
 func (a Access) Token() string {
 	return a.A.Token.ID
-}
-
-type BadRequest struct {
-	B struct {
-		Message string `json:"message"`
-		Details string `json:"details"`
-		Code    int64  `json:"code"`
-	} `json:"BadRequest"`
-}
-
-type Unauthorized struct {
-	U struct {
-		Code            int64  `json:"code"`
-		Details         string `json:"details"`
-		Message         string `json:"message"`
-		OtherAttributes struct {
-		} `json:"otherAttributes"`
-	} `json:"unauthorized"`
-}
-
-type SubToken struct {
-	ID string `json:"id"`
 }
 
 type Scope struct {
@@ -96,6 +71,10 @@ type TenantScope struct {
 	S Scope `json:"auth"`
 }
 
+/*
+ Tenant describes the response which is returned from any resource
+ which contains Tenant information
+*/
 type Tenant struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -103,38 +82,4 @@ type Tenant struct {
 	Enabled     bool   `json:"enabled"`
 	Created     string `json:"created"`
 	Updated     string `json:"updated"`
-}
-
-type Tenants struct {
-	T []Tenant `json:"tenants"`
-}
-
-type FailureResponse interface {
-	Code() int64
-	Details() string
-	Message() string
-}
-
-func (u Unauthorized) Code() int64 {
-	return u.U.Code
-}
-
-func (b BadRequest) Code() int64 {
-	return b.B.Code
-}
-
-func (u Unauthorized) Details() string {
-	return u.U.Details
-}
-
-func (b BadRequest) Details() string {
-	return b.B.Details
-}
-
-func (u Unauthorized) Message() string {
-	return u.U.Message
-}
-
-func (b BadRequest) Message() string {
-	return b.B.Message
 }
