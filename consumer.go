@@ -18,13 +18,13 @@ import (
 	"time"
 )
 
-func Authenticate(user, pass string) (*Access, error) {
+func Authenticate(user, pass, tenantID string) (*Access, error) {
 	l := Login{
 		auth{
 			credentials{
 				User: user, Pass: pass,
 			},
-			"91526641119774",
+			tenantID,
 		},
 	}
 	d, err := json.Marshal(l)
