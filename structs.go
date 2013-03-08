@@ -58,6 +58,7 @@ type Access struct {
 	Tenants   []Tenant
 	SecretKey string
 	AccessKey string
+	TenantID  string
 }
 
 func (a Access) Token() string {
