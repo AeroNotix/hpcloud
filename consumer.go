@@ -33,7 +33,11 @@ func Authenticate(user, pass, tenantID string) (*Access, error) {
 		fmt.Println(err)
 		return nil, err
 	}
-	resp, err := http.Post(REGION_URL+"tokens", "application/json", strings.NewReader(string(d)))
+	resp, err := http.Post(
+		REGION_URL+"tokens",
+		"application/json",
+		strings.NewReader(string(d)),
+	)
 	if err != nil {
 		return nil, err
 	}
