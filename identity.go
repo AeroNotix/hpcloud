@@ -216,6 +216,17 @@ type Role struct {
 	Name      string `json:"name"`
 }
 
+/*
+
+ User describes in-part the response you will receive when making
+ an authentication request.
+
+"user": {
+    "id": "<tenant_id>",
+    "name": "<username>",
+    "roles": [<array_of_roles]
+}
+*/
 type User struct {
 	ID    string `json:"id"`
 	Name  string `json:"name"`
