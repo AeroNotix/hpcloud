@@ -9,6 +9,10 @@ import (
 	"strings"
 )
 
+/*
+ Authenticate will send an authentication request to the HP Cloud and
+ return an instance of the Access type.
+*/
 func Authenticate(user, pass, tenantID string) (*Access, error) {
 	l := Login{
 		auth{
@@ -91,6 +95,10 @@ func (a *Access) GetTenants() {
 	a.Tenants = t.T
 }
 
+/*
+ On the HP Cloud, tenants have name strings associated with them, you
+ can find the tenantID associated with a name with this function
+*/
 func (a Access) TenantForName(name string) (string, error) {
 	for _, tenant := range a.Tenants {
 		if tenant.Name == name {
@@ -154,6 +162,10 @@ func (a Access) ScopeToken(name string) (*Access, error) {
 	panic("Unreachable!")
 }
 
+/*
+ Access describes the reponse received from the /tokens endpoint when
+ posting with username and password.
+*/
 type Access struct {
 	A struct {
 		Token    Token            `json:"token"`
@@ -212,7 +224,11 @@ type Token struct {
 	Tenant  interface{} `json:"tenant"`
 }
 
-func (a Access) Token() string {
+/*
+ Token is a helper method to traverse the Access type to retrieve the
+ auth_token
+*/
+func (a Access) AuthToken() string {
 	return a.A.Token.ID
 }
 
