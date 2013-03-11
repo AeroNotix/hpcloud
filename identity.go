@@ -29,7 +29,7 @@ func Authenticate(user, pass, tenantID string) (*Access, error) {
 		return nil, err
 	}
 	resp, err := http.Post(
-		REGION_URL+"tokens",
+		TOKEN_URL,
 		"application/json",
 		strings.NewReader(string(d)),
 	)
@@ -73,7 +73,7 @@ func Authenticate(user, pass, tenantID string) (*Access, error) {
 
 func (a *Access) GetTenants() {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", REGION_URL+"tenants", nil)
+	req, err := http.NewRequest("GET", TENANT_URL, nil)
 	req.Header.Add("X-Auth-Token", a.A.Token.ID)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -122,7 +122,7 @@ func (a Access) ScopeToken(name string) (*Access, error) {
 		return nil, err
 	}
 	resp, err := http.Post(
-		REGION_URL+"tokens",
+		TOKEN_URL,
 		"application/json",
 		strings.NewReader(string(b)),
 	)
