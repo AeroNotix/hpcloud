@@ -19,6 +19,10 @@ func (a Access) HMAC_PostBody(max_file_size, max_file_count, path, redirect, exp
 	return a.HMAC(a.SecretKey, tenant, bdy)
 }
 
+/*
+ HMAC is a helper method to interpolate and properly format the
+ HMAC signature which is used on the HPCloud.
+*/
 func (a Access) HMAC(secret_key, tenant, hmac_body string) string {
 	h := hmac.New(func() hash.Hash { return sha1.New() }, []byte(secret_key))
 	io.WriteString(h, hmac_body)
