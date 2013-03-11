@@ -42,3 +42,12 @@ func (a Access) ObjectStoreUpload(filename, container, as string, header *http.H
 	}
 	return nil
 }
+
+func (a Access) TemporaryURL(filename, expires string) string {
+	hmac_path := fmt.Sprintf("/v1.0/%s/%s", a.TenantID, filename)
+	hmac_body := fmt.Sprintf("%s\n%s\n%s", "GET", expires, hmac_path)
+	return fmt.Sprintf("%s%s/%s?temp_url_sig=%s&temp_url_expires=%s",
+		OBJECT_STORE, a.TenantID, filename, a.HMAC(a.SecretKey, a.TenantID, hmac_body),
+		expires,
+	)
+}
