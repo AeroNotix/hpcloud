@@ -6,6 +6,13 @@ import (
 	"net/http"
 )
 
+/*
+ ObjectStoreUpload allows you to upload a file onto the HPCloud, it will
+ hash the file and check the returned hash to ensure end-to-end integrity.
+
+ It also takes an optional header which will have it's contents added
+ to the request.
+*/
 func (a Access) ObjectStoreUpload(filename, container, as string, header *http.Header) error {
 	f, err := OpenAndHashFile(filename)
 	if err != nil {
