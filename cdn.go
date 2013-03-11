@@ -69,10 +69,8 @@ func (a Access) UpdateCDNEnabledContainerMetadata(container string, data map[str
 		return err
 	}
 	req.Header.Add("X-Auth-Token", a.AuthToken())
-	if len(data) > 0 {
-		for key, value := range data {
-			req.Header.Add(key, value)
-		}
+	for key, value := range data {
+		req.Header.Add(key, value)
 	}
 	resp, err := client.Do(req)
 	if err != nil {
