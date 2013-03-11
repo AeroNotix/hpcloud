@@ -88,7 +88,7 @@ func (a Access) ListObjects(directory string) (*FileList, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	// TODO: Put in the date parsing here.
 	return fl, nil
 }
 
