@@ -222,10 +222,27 @@ type User struct {
 	Roles []Role `json:"roles"`
 }
 
+/*
+
+ Token describes in-part the response you will receive when making
+ an authentication request.
+
+ If you didn't supply a tenantID (currently this library does not
+ support unscoped authorization requests.) then the tenant section
+ will be null, hence using a pointer type for this field.
+
+ "token": {
+    "expires": "<token_expiry_date>",
+    "id": "<your_auth_token>",
+    "tenant": {
+      "id": "<tenant_id>",
+      "name": "<tenant_name>"
+    }
+*/
 type Token struct {
-	Expires string      `json:"expires"`
-	ID      string      `json:"id"`
-	Tenant  interface{} `json:"tenant"`
+	Expires string  `json:"expires"`
+	ID      string  `json:"id"`
+	Tenant  *Tenant `json:"tenant"`
 }
 
 /*
