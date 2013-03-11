@@ -43,6 +43,9 @@ func (a Access) ObjectStoreUpload(filename, container, as string, header *http.H
 	return nil
 }
 
+/*
+ TemporaryURL will generate the temporary URL for the supplied filename.
+*/
 func (a Access) TemporaryURL(filename, expires string) string {
 	hmac_path := fmt.Sprintf("/v1.0/%s/%s", a.TenantID, filename)
 	hmac_body := fmt.Sprintf("%s\n%s\n%s", "GET", expires, hmac_path)
