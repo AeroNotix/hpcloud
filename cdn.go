@@ -114,8 +114,14 @@ func (a Access) DisableCDNEnabledContainer(container string) error {
 	})
 }
 
-func (a Access) DeleteCDNEnabledContainer(container string) {
+func (a Access) EnableCDNEnabledContainer(container string) error {
+	return a.UpdateCDNEnabledContainerMetadata(container, map[string]string{
+		"X-CDN-Enabled": "True",
+	})
+}
 
+func (a Access) DeleteCDNEnabledContainer(container string) error {
+	return a.baseCDNRequest("DELETE", container, http.StatusNoContent)
 }
 
 type CDNContainers []CDNContainer
