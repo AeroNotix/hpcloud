@@ -108,6 +108,10 @@ func (a Access) TenantForName(name string) (string, error) {
 	return "", errors.New("No tenant ID for the supplied name.")
 }
 
+/*
+ ScopeToken will scope or rescope an Auth Token to a different
+ tenantID
+*/
 func (a Access) ScopeToken(name string) (*Access, error) {
 	t := TenantScope{
 		Scope{
