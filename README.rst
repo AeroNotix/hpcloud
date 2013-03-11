@@ -33,9 +33,8 @@ A few examples:
         Log.Fatal(err)
     }
     for _, entry :=  *list_objects {
-         fmt.Println(acc.TemporaryURL(entry.Name, expires_utc)
+         fmt.Println(acc.TemporaryURL(entry.Name, expires_utc))
     }
     
-    
-    Any questions or bugs, please let me know and I will be happy to look over pull
-    requests or feature ideas.
+Any questions or bugs, please let me know and I will be happy to look over pull
+requests or feature ideas.
