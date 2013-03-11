@@ -105,11 +105,12 @@ func (a Access) TemporaryURL(filename, expires string) string {
 }
 
 type File struct {
-	Hash         string `json:"hash"`
-	LastModified string `json:"last_modified"`
-	Bytes        int64  `json:"bytes"`
-	Name         string `json:"name"`
-	ContentType  string `json:"content_type"`
+	Hash            string `json:"hash"`
+	StrLastModified string `json:"last_modified"`
+	LastModified    *time.Time
+	Bytes           int64  `json:"bytes"`
+	Name            string `json:"name"`
+	ContentType     string `json:"content_type"`
 }
 
 type FileList []File
