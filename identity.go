@@ -210,6 +210,23 @@ type ServiceCatalog struct {
 	Endpoints []Endpoint `json:"endpoints"`
 }
 
+/*
+ Role describes in-part the response you will receive when making
+ an authentication request.
+
+ Roles are services for with the user making an authentication request
+ is authenticated to use.
+
+ A personality that a user assumes when performing a specific set of
+ operations. A role includes a set of rights and privileges.
+
+ {
+   "id": "00000000004003",
+   "serviceId": "100",
+   "name": "domainadmin"
+ }
+
+*/
 type Role struct {
 	ID        string `json:"id"`
 	ServiceID string `json:"serviceId"`
