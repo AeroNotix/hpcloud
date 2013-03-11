@@ -166,6 +166,17 @@ func (a Access) ScopeToken(name string) (*Access, error) {
 	panic("Unreachable!")
 }
 
+func (a Access) IsFailed() bool {
+	return a.Fail != nil
+}
+
+func (a Access) Describe() string {
+	return fmt.Sprintf(
+		"Code: %d\nDetails: %s\nMessage: %s\n",
+		a.Fail.Code(), a.Fail.Details(), a.Fail.Message(),
+	)
+}
+
 /*
  Access describes the reponse received from the /tokens endpoint when
  posting with username and password.
