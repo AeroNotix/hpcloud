@@ -46,6 +46,25 @@ func (a Access) ObjectStoreUpload(filename, container, as string, header *http.H
 	return nil
 }
 
+func (a Access) ObjectStoreDelete(filename string) error {
+	client := &http.Client{}
+	path := fmt.Sprintf("%s%s/%s", OBJECT_STORE, a.TenantID, filename)
+	req, err := http.NewRequest("DELETE", path, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Add("X-Auth-Token", a.AuthToken())
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return errors.New(fmt.Sprintf("Non-204 status code: %d", resp.StatusCode))
+	}
+	return nil
+}
+
 func (a Access) ListObjects(directory string) (*FileList, error) {
 	path := fmt.Sprintf("%s%s/%s", OBJECT_STORE, a.TenantID, directory)
 	client := &http.Client{}
