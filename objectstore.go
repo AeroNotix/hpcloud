@@ -1,8 +1,10 @@
 package hpcloud
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -43,6 +45,33 @@ func (a Access) ObjectStoreUpload(filename, container, as string, header *http.H
 	return nil
 }
 
+func (a Access) ListObjects(directory string) (*FileList, error) {
+	path := fmt.Sprintf("%s%s/%s", OBJECT_STORE, a.TenantID, directory)
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", path, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("X-Auth-Token", a.AuthToken())
+	req.Header.Add("Accept", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	fl := &FileList{}
+	err = json.Unmarshal(b, fl)
+	if err != nil {
+		return nil, err
+	}
+
+	return fl, nil
+}
+
 /*
  TemporaryURL will generate the temporary URL for the supplied filename.
 */
@@ -54,3 +83,13 @@ func (a Access) TemporaryURL(filename, expires string) string {
 		expires,
 	)
 }
+
+type File struct {
+	Hash         string `json:"hash"`
+	LastModified string `json:"last_modified"`
+	Bytes        int64  `json:"bytes"`
+	Name         string `json:"name"`
+	ContentType  string `json:"content_type"`
+}
+
+type FileList []File
