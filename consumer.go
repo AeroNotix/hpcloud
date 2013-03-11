@@ -12,7 +12,8 @@ import (
  Generates the FilePOST body which should be hashed with using the
  HMAC-SHA1 hash and used as the signature for the POST request.
 */
-func (a Access) HMAC_PostBody(max_file_size, max_file_count, path, redirect, expires, tenant string) string {
+func (a Access) HMAC_PostBody(max_file_size, max_file_count, path,
+	redirect, expires, tenant string) string {
 	bdy := fmt.Sprintf("%s\n%s\n%s\n%s\n%s",
 		path, redirect, max_file_size, max_file_count, expires,
 	)
