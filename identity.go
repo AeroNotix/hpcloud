@@ -113,7 +113,7 @@ func (a Access) ScopeToken(name string) (*Access, error) {
 		Scope{
 			name,
 			SubToken{
-				ID: a.Token(),
+				ID: a.AuthToken(),
 			},
 		},
 	}

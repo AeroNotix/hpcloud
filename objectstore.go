@@ -17,7 +17,7 @@ func (a Access) ObjectStoreUpload(filename, container, as string, header *http.H
 	if err != nil {
 		return err
 	}
-	req.Header.Add("X-Auth-Token", a.Token())
+	req.Header.Add("X-Auth-Token", a.AuthToken())
 	if header != nil {
 		for key, value := range *header {
 			for _, s := range value {
