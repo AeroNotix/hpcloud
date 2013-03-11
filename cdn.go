@@ -8,10 +8,10 @@ import (
 	"net/http"
 )
 
-func (a Access) ActivateCDNContainer(container string) error {
+func (a Access) baseCDNRequest(method, container string, StatusCode int) error {
 	client := &http.Client{}
 	path := fmt.Sprintf("%s%s/%s", CDN_URL, a.TenantID, container)
-	req, err := http.NewRequest("PUT", path, nil)
+	req, err := http.NewRequest(method, path, nil)
 	if err != nil {
 		return err
 	}
@@ -22,10 +22,15 @@ func (a Access) ActivateCDNContainer(container string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode == http.StatusCreated {
+	if resp.StatusCode == StatusCode {
 		return nil
 	}
-	return errors.New(fmt.Sprintf("Non-201 status code: %d", resp.StatusCode))
+	return errors.New(fmt.Sprintf("Non-%d status code: %d", StatusCode, resp.StatusCode))
+
+}
+
+func (a Access) ActivateCDNContainer(container string) error {
+	return a.baseCDNRequest("PUT", container, http.StatusCreated)
 }
 
 func (a Access) ListCDNEnabledContainers(enabled_only bool) (*CDNContainers, error) {
@@ -103,8 +108,10 @@ func (a Access) RetrieveCDNEnabledContainerMetadata(container string) (*http.Hea
 	return nil, errors.New(fmt.Sprintf("Non-205 status code: %d", resp.StatusCode))
 }
 
-func (a Access) DisableCDNEnabledContainer(container string) {
-
+func (a Access) DisableCDNEnabledContainer(container string) error {
+	return a.UpdateCDNEnabledContainerMetadata(container, map[string]string{
+		"X-CDN-Enabled": "False",
+	})
 }
 
 func (a Access) DeleteCDNEnabledContainer(container string) {
