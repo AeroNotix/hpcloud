@@ -3,6 +3,7 @@ package hpcloud
 import (
 	"bytes"
 	"crypto/md5"
+	"fmt"
 	"hash"
 	"io"
 	"os"
@@ -15,18 +16,24 @@ type HashedFile struct {
 	Length       int
 }
 
-func (h HashedFile) Write(p []byte) (int, error) {
+func (h *HashedFile) Write(p []byte) (int, error) {
 	i, err := io.WriteString(h.MD5, string(p))
 	if err != nil {
 		return i, err
 	}
 	h.filecontents = append(h.filecontents, p...)
-	h.Length = len(h.filecontents)
+	if len(h.filecontents) > h.Length {
+		h.Length = len(h.filecontents)
+	}
 	return len(p), nil
 }
 
 func (h HashedFile) Read(p []byte) (n int, err error) {
 	return h.FileContents.Read(p)
+}
+
+func (h HashedFile) Hash() string {
+	return fmt.Sprintf("%x", h.MD5.Sum(nil))
 }
 
 func OpenAndHashFile(filename string) (*HashedFile, error) {

@@ -27,7 +27,11 @@ func (a Access) ObjectStoreUpload(filename, container, as string, header *http.H
 	if err != nil {
 		return err
 	}
+	req.Header.Add("Etag", f.Hash())
 	req.Header.Add("X-Auth-Token", a.AuthToken())
+	if err != nil {
+		return err
+	}
 	if header != nil {
 		for key, value := range *header {
 			for _, s := range value {
@@ -40,8 +44,11 @@ func (a Access) ObjectStoreUpload(filename, container, as string, header *http.H
 		return err
 	}
 	defer resp.Body.Close()
+	if resp.Header.Get("Etag") != f.Hash() {
+		return errors.New("MD5 hashes do not match. Integrity not guaranteed.")
+	}
 	if resp.StatusCode != http.StatusCreated {
-		return errors.New("Not created.")
+		return errors.New(fmt.Sprintf("Non-201 status code: %d", resp.StatusCode))
 	}
 	return nil
 }
