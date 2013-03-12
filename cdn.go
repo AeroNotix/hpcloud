@@ -8,6 +8,11 @@ import (
 	"net/http"
 )
 
+/*
+  The CDN endpoints are the most "ReSTful" of all the HPCloud endpoints,
+  we use the same endpoint for each container and change the verb and
+  status code we use with each one.
+*/
 func (a Access) baseCDNRequest(method, container string, StatusCode int) error {
 	client := &http.Client{}
 	path := fmt.Sprintf("%s%s/%s", CDN_URL, a.TenantID, container)
@@ -29,10 +34,19 @@ func (a Access) baseCDNRequest(method, container string, StatusCode int) error {
 
 }
 
+/*
+  Activates a container for the CDN network.
+*/
 func (a Access) ActivateCDNContainer(container string) error {
 	return a.baseCDNRequest("PUT", container, http.StatusCreated)
 }
 
+/*
+  Lists available containers.
+
+  When enabled_only == true you will only receive the containers which
+  are enabled and the disabled containers will be ignored.
+*/
 func (a Access) ListCDNEnabledContainers(enabled_only bool) (*CDNContainers, error) {
 	client := &http.Client{}
 	qstring := "?format=json"
@@ -66,6 +80,12 @@ func (a Access) ListCDNEnabledContainers(enabled_only bool) (*CDNContainers, err
 	return nil, errors.New(fmt.Sprintf("Non-200 status code: %d", resp.StatusCode))
 }
 
+/*
+  Updates the metadata associated with a container.
+
+  data will be the extra headers sent with the request, which ultimately
+  end up being the metadata.
+*/
 func (a Access) UpdateCDNEnabledContainerMetadata(container string, data map[string]string) error {
 	client := &http.Client{}
 	path := fmt.Sprintf("%s%s/%s", CDN_URL, a.TenantID, container)
@@ -89,6 +109,9 @@ func (a Access) UpdateCDNEnabledContainerMetadata(container string, data map[str
 
 }
 
+/*
+  Will return the metadata associated with a single container.
+*/
 func (a Access) RetrieveCDNEnabledContainerMetadata(container string) (*http.Header, error) {
 	client := &http.Client{}
 	path := fmt.Sprintf("%s%s/%s", CDN_URL, a.TenantID, container)
@@ -108,18 +131,30 @@ func (a Access) RetrieveCDNEnabledContainerMetadata(container string) (*http.Hea
 	return nil, errors.New(fmt.Sprintf("Non-205 status code: %d", resp.StatusCode))
 }
 
+/*
+  Disables a container from the CDN. This is usually preferred over
+  deleting the CDN container since the the container will remain in
+  the CDN and thus can be activated at a later time with no overhead.
+*/
 func (a Access) DisableCDNEnabledContainer(container string) error {
 	return a.UpdateCDNEnabledContainerMetadata(container, map[string]string{
 		"X-CDN-Enabled": "False",
 	})
 }
 
+/*
+  Re-enables a container.
+*/
 func (a Access) EnableCDNEnabledContainer(container string) error {
 	return a.UpdateCDNEnabledContainerMetadata(container, map[string]string{
 		"X-CDN-Enabled": "True",
 	})
 }
 
+/*
+  Entirely deletes a container from the CDN, note: this does not delete
+  the container from the objectstore.
+*/
 func (a Access) DeleteCDNEnabledContainer(container string) error {
 	return a.baseCDNRequest("DELETE", container, http.StatusNoContent)
 }
