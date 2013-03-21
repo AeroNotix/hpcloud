@@ -197,7 +197,6 @@ func (a Access) ListImages() (*Images, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	im := &Images{}
 	err = json.Unmarshal(body, im)
 	if err != nil {
