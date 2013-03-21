@@ -205,19 +205,25 @@ func (a Access) ListImages() (*Images, error) {
 	return im, nil
 }
 
+func (a Access) DeleteImage(image_id string) error {
+	_, err := a.baseComputeRequest(fmt.Sprintf("images/%s", image_id), "DELETE")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (a Access) ListImage(image_id string) (*Image, error) {
 	body, err := a.baseComputeRequest(fmt.Sprintf("images/%s", image_id), "GET")
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(string(body))
 	i := &Image{}
 	err = json.Unmarshal(body, i)
 	if err != nil {
 		return nil, err
 	}
 	return i, nil
-
 }
 
 func (a Access) baseComputeRequest(url, method string) ([]byte, error) {
