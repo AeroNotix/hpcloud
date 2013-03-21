@@ -166,6 +166,66 @@ func (a Access) CreateServer(s Server) (*ServerResponse, error) {
 	panic("Unreachable")
 }
 
+func (a Access) ListFlavors() (*Flavors, error) {
+	body, err := a.basicComputeGET("flavors")
+	if err != nil {
+		return nil, err
+	}
+
+	fl := &Flavors{}
+	err = json.Unmarshal(body, fl)
+	if err != nil {
+		return nil, err
+	}
+	return fl, nil
+}
+
+func (a Access) ListImages() (*Images, error) {
+	body, err := a.basicComputeGET("images")
+	if err != nil {
+		return nil, err
+	}
+
+	im := &Images{}
+	err = json.Unmarshal(body, im)
+	if err != nil {
+		return nil, err
+	}
+	return im, nil
+}
+
+func (a Access) basicComputeGET(url string) ([]byte, error) {
+	path := fmt.Sprintf("%s%s/%s", COMPUTE_URL, a.TenantID, url)
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", path, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("X-Auth-Token", a.A.Token.ID)
+	req.Header.Add("Content-type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	switch resp.StatusCode {
+	case http.StatusOK, http.StatusNonAuthoritativeInfo:
+		return body, nil
+	default:
+		br := &BadRequest{}
+		err = json.Unmarshal(body, br)
+		if err != nil {
+			return nil, err
+		}
+		return nil, errors.New(br.B.Message)
+	}
+	panic("Unreachable")
+}
+
 func (s Server) MarshalJSON() ([]byte, error) {
 	b := bytes.NewBufferString("")
 	b.WriteString(`{"server":{`)
