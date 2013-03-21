@@ -3,14 +3,15 @@ package hpcloud
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/http/httputil"
 	"strings"
 )
 
+/* Server flavours Smallest to Largest */
 type Flavor int
 
 const (
@@ -22,6 +23,7 @@ const (
 	DblXLarge
 )
 
+/* Available images */
 type ServerImage int
 
 const (
@@ -51,10 +53,21 @@ const (
 	EnterpriseDBPSQL9_1_3     = 9995
 )
 
-type SecurityGroup struct {
-	Name string `json:"name"`
+type Link struct {
+	HREF string `json:"href"`
+	Rel  string `json:"rel"`
 }
 
+type SecurityGroup struct {
+	Name  string `json:"name"`
+	Links []Link `json:"links"`
+	ID    int64  `json:"id"`
+}
+
+/*
+  This type describes the JSON data which should be sent to the create
+  server resource.
+*/
 type Server struct {
 	ConfigDrive    bool              `json:"config_drive"`
 	FlavorRef      Flavor            `json:"flavorRef"`
@@ -69,36 +82,82 @@ type Server struct {
 	Metadata       map[string]string `json:"metadata"`
 }
 
-func (a Access) CreateServer(s Server) error {
+/*
+  Several embedded types are simply an ID string with a slice of Link
+*/
+type IDLink struct {
+	ID    string `json:"id"`
+	Links []Link `json:"links"`
+}
+
+/*
+  This type describes the JSON response from a successful CreateServer
+  call.
+*/
+type ServerResponse struct {
+	S struct {
+		Status         string            `json:"status"`
+		Updated        string            `json:"update"`
+		HostID         string            `json:"hostId"`
+		UserID         string            `json:"user_id"`
+		Name           string            `json:"name"`
+		Links          []Link            `json:"links"`
+		Addresses      interface{}       `json:"addresses"`
+		TenantID       string            `json:"tenant_id"`
+		Image          IDLink            `json:"image"`
+		Created        string            `json:"created"`
+		UUID           string            `json:"uuid"`
+		AccessIPv4     string            `json:"accessIPv4"`
+		AccessIPv6     string            `json:"accessIPv6"`
+		KeyName        string            `json:"key_name"`
+		AdminPass      string            `json:"adminPass"`
+		Flavor         IDLink            `json:"flavor"`
+		ConfigDrive    string            `json:"config_drive"`
+		ID             int64             `json:"id"`
+		SecurityGroups []SecurityGroup   `json:"security_groups"`
+		Metadata       map[string]string `json:"metadata"`
+	} `json:"server"`
+}
+
+func (a Access) CreateServer(s Server) (*ServerResponse, error) {
 	b, err := s.MarshalJSON()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	path := fmt.Sprintf("%s%s/servers", COMPUTE_URL, a.TenantID)
-	fmt.Println(path, string(b))
 	client := &http.Client{}
 	req, err := http.NewRequest("POST", path, strings.NewReader(string(b)))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	req.Header.Add("X-Auth-Token", a.A.Token.ID)
 	req.Header.Add("Content-type", "application/json")
-	som, err := httputil.DumpRequestOut(req, true)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	fmt.Println(string(som))
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
+	switch resp.StatusCode {
+	case http.StatusAccepted:
+		sr := &ServerResponse{}
+		err = json.Unmarshal(body, sr)
+		if err != nil {
+			return nil, err
+		}
+		return sr, nil
+	default:
+		br := &BadRequest{}
+		err = json.Unmarshal(body, br)
+		if err != nil {
+			return nil, err
+		}
+		return nil, errors.New(br.B.Message)
 	}
-	fmt.Println(string(body))
-	return nil
+	panic("Unreachable")
 }
 
 func (s Server) MarshalJSON() ([]byte, error) {
@@ -141,6 +200,7 @@ func (s Server) MarshalJSON() ([]byte, error) {
 	} else if s.Personality != "" {
 		b.WriteString(fmt.Sprintf(`,"personality":"%s",`, s.Personality))
 	}
+	/* user_data needs to be base64'd */
 	if s.UserData != "" {
 		newb := make([]byte, 0, len(s.UserData))
 		base64.StdEncoding.Encode([]byte(s.UserData), newb)
