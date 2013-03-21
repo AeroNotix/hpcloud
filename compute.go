@@ -177,7 +177,7 @@ func (a Access) CreateServer(s Server) (*ServerResponse, error) {
 }
 
 func (a Access) ListFlavors() (*Flavors, error) {
-	body, err := a.baseComputeRequest("flavors")
+	body, err := a.baseComputeRequest("flavors", "GET")
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +191,7 @@ func (a Access) ListFlavors() (*Flavors, error) {
 }
 
 func (a Access) ListImages() (*Images, error) {
-	body, err := a.baseComputeRequest("images")
+	body, err := a.baseComputeRequest("images", "GET")
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +205,7 @@ func (a Access) ListImages() (*Images, error) {
 }
 
 func (a Access) ListImage(image_id string) (*Image, error) {
-	body, err := a.baseComputeRequest(fmt.Sprintf("images/%s", image_id))
+	body, err := a.baseComputeRequest(fmt.Sprintf("images/%s", image_id), "GET")
 	if err != nil {
 		return nil, err
 	}
@@ -219,10 +219,10 @@ func (a Access) ListImage(image_id string) (*Image, error) {
 
 }
 
-func (a Access) baseComputeRequest(url string) ([]byte, error) {
+func (a Access) baseComputeRequest(url, method string) ([]byte, error) {
 	path := fmt.Sprintf("%s%s/%s", COMPUTE_URL, a.TenantID, url)
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", path, nil)
+	req, err := http.NewRequest(method, path, nil)
 	if err != nil {
 		return nil, err
 	}
