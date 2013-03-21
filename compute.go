@@ -78,13 +78,15 @@ type Flavors struct {
 }
 
 type Image struct {
-	Name     string            `json:"name"`
-	ID       int64             `json:"id"`
-	Links    []Link            `json:"links"`
-	Progress int               `json:"progress"`
-	Metadata map[string]string `json:"metadata"`
-	Status   string            `json:"status"`
-	Updated  string            `json:"updated"`
+	I struct {
+		Name     string            `json:"name"`
+		ID       string            `json:"id"`
+		Links    []Link            `json:"links"`
+		Progress int               `json:"progress"`
+		Metadata map[string]string `json:"metadata"`
+		Status   string            `json:"status"`
+		Updated  string            `json:"updated"`
+	} `json:"image"`
 }
 
 type Images struct {
