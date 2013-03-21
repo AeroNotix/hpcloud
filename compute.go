@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -179,7 +180,7 @@ func (a Access) CreateServer(s Server) (*ServerResponse, error) {
 }
 
 func (a Access) ListFlavors() (*Flavors, error) {
-	body, err := a.baseComputeRequest("flavors", "GET")
+	body, err := a.baseComputeRequest("flavors", "GET", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +194,7 @@ func (a Access) ListFlavors() (*Flavors, error) {
 }
 
 func (a Access) ListImages() (*Images, error) {
-	body, err := a.baseComputeRequest("images", "GET")
+	body, err := a.baseComputeRequest("images", "GET", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +207,7 @@ func (a Access) ListImages() (*Images, error) {
 }
 
 func (a Access) DeleteImage(image_id string) error {
-	_, err := a.baseComputeRequest(fmt.Sprintf("images/%s", image_id), "DELETE")
+	_, err := a.baseComputeRequest(fmt.Sprintf("images/%s", image_id), "DELETE", nil)
 	if err != nil {
 		return err
 	}
@@ -214,7 +215,7 @@ func (a Access) DeleteImage(image_id string) error {
 }
 
 func (a Access) ListImage(image_id string) (*Image, error) {
-	body, err := a.baseComputeRequest(fmt.Sprintf("images/%s", image_id), "GET")
+	body, err := a.baseComputeRequest(fmt.Sprintf("images/%s", image_id), "GET", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -226,10 +227,10 @@ func (a Access) ListImage(image_id string) (*Image, error) {
 	return i, nil
 }
 
-func (a Access) baseComputeRequest(url, method string) ([]byte, error) {
+func (a Access) baseComputeRequest(url, method string, b io.Reader) ([]byte, error) {
 	path := fmt.Sprintf("%s%s/%s", COMPUTE_URL, a.TenantID, url)
 	client := &http.Client{}
-	req, err := http.NewRequest(method, path, nil)
+	req, err := http.NewRequest(method, path, b)
 	if err != nil {
 		return nil, err
 	}
