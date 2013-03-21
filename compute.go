@@ -58,10 +58,27 @@ type Link struct {
 	Rel  string `json:"rel"`
 }
 
-type SecurityGroup struct {
+/*
+  Several embedded types are simply an ID string with a slice of Link
+*/
+type IDLink struct {
 	Name  string `json:"name"`
+	ID    string `json:"id"`
 	Links []Link `json:"links"`
+}
+
+type Flavor_ struct {
+	Name  string `json:"name"`
 	ID    int64  `json:"id"`
+	Links []Link `json:"links"`
+}
+
+type Flavors struct {
+	F []Flavor_ `json:"flavors"`
+}
+
+type Images struct {
+	I []IDLink `json:"images"`
 }
 
 /*
@@ -78,16 +95,8 @@ type Server struct {
 	Key            string            `json:"key_name"`
 	Personality    string            `json:"personality"`
 	UserData       string            `json:"user_data"`
-	SecurityGroups []SecurityGroup   `json:"security_groups"`
+	SecurityGroups []IDLink          `json:"security_groups"`
 	Metadata       map[string]string `json:"metadata"`
-}
-
-/*
-  Several embedded types are simply an ID string with a slice of Link
-*/
-type IDLink struct {
-	ID    string `json:"id"`
-	Links []Link `json:"links"`
 }
 
 /*
@@ -114,7 +123,7 @@ type ServerResponse struct {
 		Flavor         IDLink            `json:"flavor"`
 		ConfigDrive    string            `json:"config_drive"`
 		ID             int64             `json:"id"`
-		SecurityGroups []SecurityGroup   `json:"security_groups"`
+		SecurityGroups []IDLink          `json:"security_groups"`
 		Metadata       map[string]string `json:"metadata"`
 	} `json:"server"`
 }
