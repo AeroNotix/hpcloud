@@ -232,9 +232,8 @@ func (a Access) baseComputeRequest(url, method string, b io.Reader) ([]byte, err
 	if err != nil {
 		return nil, err
 	}
-
 	switch resp.StatusCode {
-	case http.StatusOK, http.StatusNonAuthoritativeInfo:
+	case http.StatusOK, http.StatusNonAuthoritativeInfo, http.StatusAccepted:
 		return body, nil
 	case http.StatusNotFound:
 		nf := &NotFound{}
