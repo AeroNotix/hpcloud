@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"mime"
 	"net/http"
+	"path/filepath"
 	"time"
 )
 
@@ -27,6 +29,7 @@ func (a Access) ObjectStoreUpload(filename, container, as string, header *http.H
 	if err != nil {
 		return err
 	}
+	req.Header.Add("Content-Type", mime.TypeByExtension(filepath.Ext(filename)))
 	req.Header.Add("Etag", f.Hash())
 	req.Header.Add("X-Auth-Token", a.AuthToken())
 	if err != nil {
