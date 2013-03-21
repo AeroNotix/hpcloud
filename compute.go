@@ -319,12 +319,14 @@ func (s Server) MarshalJSON() ([]byte, error) {
 		base64.StdEncoding.Encode([]byte(s.UserData), newb)
 		b.WriteString(fmt.Sprintf(`,"user_data": "%s",`, string(newb)))
 	}
+	/* The max size of a personality string is 255 bytes. */
 	if len(s.Personality) > 255 {
 		return []byte{},
 			errors.New("Server's personality cannot have >255 bytes.")
 	} else if s.Personality != "" {
 		b.WriteString(fmt.Sprintf(`,"personality":"%s",`, s.Personality))
 	}
+	/* Ignore the metadata if there isn't any, it's optional. */
 	if len(s.Metadata) > 0 {
 		fmt.Println(len(s.Metadata))
 		b.WriteString(`,"metadata":{`)
@@ -339,6 +341,7 @@ func (s Server) MarshalJSON() ([]byte, error) {
 			}
 		}
 	}
+	/* Ignore the Security Groups if there isn't any, it's optional. */
 	if len(s.SecurityGroups) > 0 {
 		b.WriteString(`,"security_groups":[`)
 		cnt := 0
