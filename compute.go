@@ -248,6 +248,8 @@ func (s Server) MarshalJSON() ([]byte, error) {
 	} else {
 		b.WriteString(fmt.Sprintf(`,"name":"%s"`, s.Name))
 	}
+
+	/* Optional items */
 	if s.Key != "" {
 		b.WriteString(fmt.Sprintf(`,"key_name":"%s"`, s.Key))
 	}
