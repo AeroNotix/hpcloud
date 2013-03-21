@@ -17,7 +17,7 @@ A few examples:
 
     /*
       Upload files easily to the object store, their metadata will be set
-      appropriately. The file will be MD5'd appropriately for end-to-end
+      appropriately. The file will be MD5'd for end-to-end
       integrity checks.
 
       You can set extra headers with the fourth argument as described in the HPCloud
