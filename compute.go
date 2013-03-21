@@ -77,6 +77,16 @@ type Flavors struct {
 	F []Flavor_ `json:"flavors"`
 }
 
+type Image struct {
+	Name     string            `json:"name"`
+	ID       int64             `json:"id"`
+	Links    []Link            `json:"links"`
+	Progress int               `json:"progress"`
+	Metadata map[string]string `json:"metadata"`
+	Status   string            `json:"status"`
+	Updated  string            `json:"updated"`
+}
+
 type Images struct {
 	I []IDLink `json:"images"`
 }
@@ -192,6 +202,21 @@ func (a Access) ListImages() (*Images, error) {
 		return nil, err
 	}
 	return im, nil
+}
+
+func (a Access) ListImage(image_id string) (*Image, error) {
+	body, err := a.baseComputeRequest(fmt.Sprintf("images/%s", image_id))
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(string(body))
+	i := &Image{}
+	err = json.Unmarshal(body, i)
+	if err != nil {
+		return nil, err
+	}
+	return i, nil
+
 }
 
 func (a Access) baseComputeRequest(url string) ([]byte, error) {
