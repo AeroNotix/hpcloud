@@ -141,6 +141,14 @@ type ServerResponse struct {
 	} `json:"server"`
 }
 
+/*
+  CreateServer creates a new server in the HPCloud using the
+  settings found in the Server instance passed to this function.
+
+  This function implements the interface as described in:-
+  * https://docs.hpcloud.com/api/compute/
+  * section 4.4.5.2 Create Server
+*/
 func (a Access) CreateServer(s Server) (*ServerResponse, error) {
 	b, err := s.MarshalJSON()
 	if err != nil {
@@ -161,6 +169,13 @@ func (a Access) CreateServer(s Server) (*ServerResponse, error) {
 	return sr, nil
 }
 
+/*
+  DeleteServer deletes the server with the `server_id`.
+
+  This function implements the interface described in:-
+  * https://docs.hpcloud.com/api/compute/
+  * Section 4.4.6.3 Delete Server
+*/
 func (a Access) DeleteServer(server_id string) error {
 	_, err := a.baseComputeRequest(
 		fmt.Sprintf("servers/%s", server_id),
@@ -172,6 +187,13 @@ func (a Access) DeleteServer(server_id string) error {
 	return nil
 }
 
+/*
+  RebootServer will reboot the server with the `server_id`.
+
+  This function implements the interface described in:-
+  * https://docs.hpcloud.com/api/compute/
+  * Section 4.4.7.1 Reboot Server
+*/
 func (a Access) RebootServer(server_id string) error {
 	s := `{"reboot":{"type":"SOFT"}}`
 	_, err := a.baseComputeRequest(
@@ -185,6 +207,10 @@ func (a Access) RebootServer(server_id string) error {
 
 }
 
+/*
+  ListFlavors will list all the available flavours
+  on the HPCloud compute API.
+*/
 func (a Access) ListFlavors() (*Flavors, error) {
 	body, err := a.baseComputeRequest("flavors", "GET", nil)
 	if err != nil {
@@ -237,6 +263,17 @@ func (a Access) ListImage(image_id string) (*Image, error) {
 	return i, nil
 }
 
+/*
+  baseComputeRequest encapsulates the main basic request
+  which is done for each endpoint in the Compute API.
+
+  In the ComputeAPI all endpoints generally succeed on
+  a 200/202 return code and fail on the usual fail codes.
+
+  We simply check for the known good return codes and return
+  the body in those cases or we fail with the appropriate
+  response.
+*/
 func (a Access) baseComputeRequest(url, method string, b io.Reader) ([]byte, error) {
 	path := fmt.Sprintf("%s%s/%s", COMPUTE_URL, a.TenantID, url)
 	client := &http.Client{}
@@ -277,6 +314,27 @@ func (a Access) baseComputeRequest(url, method string, b io.Reader) ([]byte, err
 	panic("Unreachable")
 }
 
+/*
+  MarshalJSON implements the Marshaler interface for the
+  Server type.
+
+  We implement this interface because when creating a server
+  we have optional values and since Go has zero-values and
+  does *not* have configurable zero values we need to make
+  sure that zero-values are converted to known good values.
+
+  As such:
+    * FlavorRef is checked if it's a valid reference.
+    * Ditto for ImageRef.
+    * Name cannot be blank.
+    * If the key is missing, it'll not put anything in.
+    * The config_drive defaults to false anyway, no need
+      to send a false value.
+    * Min/MaxCount are ignored if they are zero.
+    * UserData is ignored if it's a blank string.
+    * Personality is ignored if it's a blank string.
+    * Metadata/SecurityGroups are ignored if they have len(0)
+*/
 func (s Server) MarshalJSON() ([]byte, error) {
 	b := bytes.NewBufferString("")
 	b.WriteString(`{"server":{`)
