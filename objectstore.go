@@ -18,13 +18,13 @@ import (
  It also takes an optional header which will have it's contents added
  to the request.
 */
-func (a Access) ObjectStoreUpload(filename, container, as string, header *http.Header) error {
+func (a Access) ObjectStoreUpload(filename, container string, header *http.Header) error {
 	f, err := OpenAndHashFile(filename)
 	if err != nil {
 		return err
 	}
 	client := &http.Client{}
-	path := fmt.Sprintf("%s%s/%s/%s", OBJECT_STORE, a.TenantID, container, as)
+	path := fmt.Sprintf("%s%s/%s/%s", OBJECT_STORE, a.TenantID, container, filepath.Base(filename))
 	req, err := http.NewRequest("PUT", path, f)
 	if err != nil {
 		return err
