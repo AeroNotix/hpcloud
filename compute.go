@@ -132,9 +132,6 @@ func (a Access) CreateServer(s Server) (*ServerResponse, error) {
 	}
 	req.Header.Add("X-Auth-Token", a.A.Token.ID)
 	req.Header.Add("Content-type", "application/json")
-	if err != nil {
-		return nil, err
-	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
