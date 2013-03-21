@@ -69,7 +69,7 @@ func (a Access) ObjectStoreDelete(filename string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusNoContent {
 		return errors.New(fmt.Sprintf("Non-204 status code: %d", resp.StatusCode))
 	}
 	return nil
