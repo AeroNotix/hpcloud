@@ -167,7 +167,7 @@ func (a Access) CreateServer(s Server) (*ServerResponse, error) {
 }
 
 func (a Access) ListFlavors() (*Flavors, error) {
-	body, err := a.basicComputeGET("flavors")
+	body, err := a.baseComputeRequest("flavors")
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +181,7 @@ func (a Access) ListFlavors() (*Flavors, error) {
 }
 
 func (a Access) ListImages() (*Images, error) {
-	body, err := a.basicComputeGET("images")
+	body, err := a.baseComputeRequest("images")
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +194,7 @@ func (a Access) ListImages() (*Images, error) {
 	return im, nil
 }
 
-func (a Access) basicComputeGET(url string) ([]byte, error) {
+func (a Access) baseComputeRequest(url string) ([]byte, error) {
 	path := fmt.Sprintf("%s%s/%s", COMPUTE_URL, a.TenantID, url)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", path, nil)
