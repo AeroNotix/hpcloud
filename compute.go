@@ -195,7 +195,12 @@ func (a Access) DeleteServer(server_id string) error {
   * Section 4.4.7.1 Reboot Server
 */
 func (a Access) RebootServer(server_id string) error {
-	s := `{"reboot":{"type":"SOFT"}}`
+	/*
+		 The docs mention that a hard reboot will be used
+	     no matter what, so there's no point making a type
+	     or make the type of reboot an option
+	*/
+	s := `{"reboot":{"type":"HARD"}}`
 	_, err := a.baseComputeRequest(
 		fmt.Sprintf("servers/%s/action", server_id),
 		"POST", strings.NewReader(s),
