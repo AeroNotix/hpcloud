@@ -281,14 +281,13 @@ func (a Access) ListImage(image_id string) (*Image, error) {
 */
 func (a Access) baseComputeRequest(url, method string, b io.Reader) ([]byte, error) {
 	path := fmt.Sprintf("%s%s/%s", COMPUTE_URL, a.TenantID, url)
-	client := &http.Client{}
 	req, err := http.NewRequest(method, path, b)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Add("X-Auth-Token", a.A.Token.ID)
 	req.Header.Add("Content-type", "application/json")
-	resp, err := client.Do(req)
+	resp, err := a.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}

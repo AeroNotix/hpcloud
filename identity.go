@@ -192,6 +192,7 @@ type Access struct {
 	SecretKey string
 	AccessKey string
 	TenantID  string
+	Client    http.Client
 }
 
 type Login struct {
