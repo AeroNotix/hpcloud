@@ -248,6 +248,13 @@ func (a Access) baseComputeRequest(url, method string, b io.Reader) ([]byte, err
 	switch resp.StatusCode {
 	case http.StatusOK, http.StatusNonAuthoritativeInfo:
 		return body, nil
+	case http.StatusNotFound:
+		nf := &NotFound{}
+		err = json.Unmarshal(body, nf)
+		if err != nil {
+			return nil, err
+		}
+		return nil, errors.New(nf.NF.Message)
 	default:
 		br := &BadRequest{}
 		err = json.Unmarshal(body, br)

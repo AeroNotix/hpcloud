@@ -14,6 +14,18 @@ type BadRequest struct {
 }
 
 /*
+ NotFound describes the response from a JSON resource when the
+ resource which was interacted with in the original request was
+ not able to be found.
+*/
+type NotFound struct {
+	NF struct {
+		Message string `json:"message"`
+		Code    int    `json:"code"`
+	} `json:"itemNotFound"`
+}
+
+/*
  Unauthorized describes the response from a JSON resource when the
  request could not be completed due to none or incorrect authentication
  was used to make the request.
