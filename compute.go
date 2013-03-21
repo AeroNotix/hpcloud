@@ -146,35 +146,23 @@ func (a Access) CreateServer(s Server) (*ServerResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	path := fmt.Sprintf("%s%s/servers", COMPUTE_URL, a.TenantID)
-	client := &http.Client{}
-	req, err := http.NewRequest("POST", path, strings.NewReader(string(b)))
+
+	body, err := a.baseComputeRequest("servers", "POST", strings.NewReader(string(b)))
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("X-Auth-Token", a.A.Token.ID)
-	req.Header.Add("Content-type", "application/json")
-	resp, err := client.Do(req)
+	sr := &ServerResponse{}
+	err = json.Unmarshal(body, sr)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	switch resp.StatusCode {
-	case http.StatusAccepted:
-		sr := &ServerResponse{}
-		err = json.Unmarshal(body, sr)
-		if err != nil {
-			return nil, err
-		}
-		return sr, nil
-	default:
-		br := &BadRequest{}
-		err = json.Unmarshal(body, br)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(br.B.Message)
+	return sr, nil
+}
+
+func (a Access) DeleteServer(server_id string) error {
+	_, err := a.baseComputeRequest(fmt.Sprintf("servers/%s", server_id), "DELETE", nil)
+	if err != nil {
+		return err
 	}
 	panic("Unreachable")
 }
