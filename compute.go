@@ -191,17 +191,17 @@ func (s Server) MarshalJSON() ([]byte, error) {
 	if s.MaxCount > 0 {
 		b.WriteString(fmt.Sprintf(`,"max_count":%d`, s.MaxCount))
 	}
+	if s.UserData != "" {
+		/* user_data needs to be base64'd */
+		newb := make([]byte, 0, len(s.UserData))
+		base64.StdEncoding.Encode([]byte(s.UserData), newb)
+		b.WriteString(fmt.Sprintf(`,"user_data": "%s",`, string(newb)))
+	}
 	if len(s.Personality) > 255 {
 		return []byte{},
 			errors.New("Server's personality cannot have >255 bytes.")
 	} else if s.Personality != "" {
 		b.WriteString(fmt.Sprintf(`,"personality":"%s",`, s.Personality))
-	}
-	/* user_data needs to be base64'd */
-	if s.UserData != "" {
-		newb := make([]byte, 0, len(s.UserData))
-		base64.StdEncoding.Encode([]byte(s.UserData), newb)
-		b.WriteString(fmt.Sprintf(`,"user_data": "%s",`, string(newb)))
 	}
 	if len(s.Metadata) > 0 {
 		fmt.Println(len(s.Metadata))
