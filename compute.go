@@ -196,9 +196,9 @@ func (a Access) DeleteServer(server_id string) error {
 */
 func (a Access) RebootServer(server_id string) error {
 	/*
-		 The docs mention that a hard reboot will be used
-	     no matter what, so there's no point making a type
-	     or make the type of reboot an option
+			 The docs mention that a hard reboot will be used
+		     no matter what, so there's no point making a type
+		     or make the type of reboot an option
 	*/
 	s := `{"reboot":{"type":"HARD"}}`
 	_, err := a.baseComputeRequest(
