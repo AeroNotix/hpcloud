@@ -164,7 +164,17 @@ func (a Access) DeleteServer(server_id string) error {
 	if err != nil {
 		return err
 	}
-	panic("Unreachable")
+	return nil
+}
+
+func (a Access) RebootServer(server_id string) error {
+	s := `{"reboot":{"type":"SOFT"}}`
+	_, err := a.baseComputeRequest(fmt.Sprintf("servers/%s/action", server_id), "POST", strings.NewReader(s))
+	if err != nil {
+		return err
+	}
+	return nil
+
 }
 
 func (a Access) ListFlavors() (*Flavors, error) {
