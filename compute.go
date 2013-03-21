@@ -147,7 +147,9 @@ func (a Access) CreateServer(s Server) (*ServerResponse, error) {
 		return nil, err
 	}
 
-	body, err := a.baseComputeRequest("servers", "POST", strings.NewReader(string(b)))
+	body, err := a.baseComputeRequest("servers", "POST",
+		strings.NewReader(string(b)),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +162,10 @@ func (a Access) CreateServer(s Server) (*ServerResponse, error) {
 }
 
 func (a Access) DeleteServer(server_id string) error {
-	_, err := a.baseComputeRequest(fmt.Sprintf("servers/%s", server_id), "DELETE", nil)
+	_, err := a.baseComputeRequest(
+		fmt.Sprintf("servers/%s", server_id),
+		"DELETE", nil,
+	)
 	if err != nil {
 		return err
 	}
@@ -169,7 +174,10 @@ func (a Access) DeleteServer(server_id string) error {
 
 func (a Access) RebootServer(server_id string) error {
 	s := `{"reboot":{"type":"SOFT"}}`
-	_, err := a.baseComputeRequest(fmt.Sprintf("servers/%s/action", server_id), "POST", strings.NewReader(s))
+	_, err := a.baseComputeRequest(
+		fmt.Sprintf("servers/%s/action", server_id),
+		"POST", strings.NewReader(s),
+	)
 	if err != nil {
 		return err
 	}
@@ -205,7 +213,9 @@ func (a Access) ListImages() (*Images, error) {
 }
 
 func (a Access) DeleteImage(image_id string) error {
-	_, err := a.baseComputeRequest(fmt.Sprintf("images/%s", image_id), "DELETE", nil)
+	_, err := a.baseComputeRequest(
+		fmt.Sprintf("images/%s", image_id), "DELETE", nil,
+	)
 	if err != nil {
 		return err
 	}
@@ -213,7 +223,9 @@ func (a Access) DeleteImage(image_id string) error {
 }
 
 func (a Access) ListImage(image_id string) (*Image, error) {
-	body, err := a.baseComputeRequest(fmt.Sprintf("images/%s", image_id), "GET", nil)
+	body, err := a.baseComputeRequest(
+		fmt.Sprintf("images/%s", image_id), "GET", nil,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -243,7 +255,9 @@ func (a Access) baseComputeRequest(url, method string, b io.Reader) ([]byte, err
 		return nil, err
 	}
 	switch resp.StatusCode {
-	case http.StatusOK, http.StatusNonAuthoritativeInfo, http.StatusAccepted:
+	case http.StatusAccepted:
+	case http.StatusNonAuthoritativeInfo:
+	case http.StatusOK:
 		return body, nil
 	case http.StatusNotFound:
 		nf := &NotFound{}
