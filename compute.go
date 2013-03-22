@@ -285,7 +285,7 @@ func (a Access) baseComputeRequest(url, method string, b io.Reader) ([]byte, err
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("X-Auth-Token", a.A.Token.ID)
+	req.Header.Add("X-Auth-Token", a.AuthToken())
 	req.Header.Add("Content-type", "application/json")
 	resp, err := a.Client.Do(req)
 	if err != nil {
