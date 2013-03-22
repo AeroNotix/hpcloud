@@ -12,13 +12,13 @@ func httpTestsSetUp(f http.HandlerFunc) {
 	OBJECT_STORE = ts.URL + "/object_store/"
 	CDN_URL = ts.URL + "/cdn/"
 	COMPUTE_URL = ts.URL + "/compute"
-	account.A.Token.ID = "faketoken"
+	test_account.A.Token.ID = "faketoken"
 	if f != nil {
 		functionalTest = f
 	}
 }
 
-var account Access
+var test_account Access
 var th = testHandler{}
 var ts = httptest.NewServer(th)
 var functionalTest http.HandlerFunc

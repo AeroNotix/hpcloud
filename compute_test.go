@@ -7,21 +7,21 @@ import (
 
 func TestCreateServerPrerequisites(t *testing.T) {
 	httpTestsSetUp(nil)
-	_, err := account.CreateServer(Server{
+	_, err := test_account.CreateServer(Server{
 		ImageRef: DebianSqueeze6_0_3Kernel,
 		Name:     "TestServer",
 	})
 	if err == nil {
 		t.Error("Failed to account for a blank Flavour reference.")
 	}
-	_, err = account.CreateServer(Server{
+	_, err = test_account.CreateServer(Server{
 		FlavorRef: XSmall,
 		Name:      "TestServer",
 	})
 	if err == nil {
 		t.Error("Failed to account for a blank Image reference.")
 	}
-	_, err = account.CreateServer(Server{
+	_, err = test_account.CreateServer(Server{
 		ImageRef:  DebianSqueeze6_0_3Kernel,
 		FlavorRef: XSmall,
 	})
@@ -42,7 +42,7 @@ func TestRequestHeadersAreCorrect(t *testing.T) {
 			t.Error("Incorrect content type")
 		}
 	})
-	account.CreateServer(Server{
+	test_account.CreateServer(Server{
 		ImageRef:  DebianSqueeze6_0_3Kernel,
 		FlavorRef: XSmall,
 		Name:      "TestServer",
