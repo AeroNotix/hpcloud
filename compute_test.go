@@ -1,7 +1,7 @@
 package hpcloud
 
 import (
-	"fmt"
+	"errors"
 	"net/http"
 	"testing"
 )
@@ -11,9 +11,20 @@ type testRoundTripper struct {
 	Message string
 }
 
-func (trt testRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	fmt.Println(req)
-	return nil, nil
+func setUp() {
+	testclient.Transport = &testtrasport
+	account.Client = testclient
+	testtrasport.Status = true
+	account.A.Token.ID = "faketoken"
+}
+
+func (trt *testRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	if req.Header.Get("X-Auth-Token") == "" {
+		trt.Status = false
+		trt.Message = "X-Auth-Token Missing"
+	}
+
+	return nil, errors.New("Not implemented")
 }
 
 var account Access
@@ -21,9 +32,7 @@ var testclient http.Client
 var testtrasport testRoundTripper
 
 func TestCreateServerPrerequisites(t *testing.T) {
-	testclient.Transport = testtrasport
-	account.Client = testclient
-
+	setUp()
 	_, err := account.CreateServer(Server{
 		ImageRef: DebianSqueeze6_0_3Kernel,
 		Name:     "TestServer",
@@ -44,5 +53,13 @@ func TestCreateServerPrerequisites(t *testing.T) {
 	})
 	if err == nil {
 		t.Error("Failed to account for a missing name")
+	}
+}
+
+func TestRequestHeadersAreCorrect(t *testing.T) {
+	setUp()
+	account.baseComputeRequest("", "", nil)
+	if !testtrasport.Status {
+		t.Error(testtrasport.Message)
 	}
 }
