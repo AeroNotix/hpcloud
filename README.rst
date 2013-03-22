@@ -23,7 +23,7 @@ A few examples:
 	  You can set extra headers with the fourth argument as described in the HPCloud
 	  documentation.
 	*/
-	if err := acc.ObjectStoreUpload("/path/to/file", "container", "as", nil); err != nil {
+	if err := acc.ObjectStoreUpload("/path/to/file", "container", nil); err != nil {
 		Log.Fatal(err)
 	}
 
