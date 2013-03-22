@@ -1,35 +1,35 @@
 package hpcloud
 
 import (
-	"errors"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
-type testRoundTripper struct {
-	Status  bool
-	Message string
-}
-
 func setUp() {
-	testclient.Transport = &testtrasport
-	account.Client = testclient
-	testtrasport.Status = true
+	REGION_URL = ts.URL + "/region/"
+	TOKEN_URL = REGION_URL + "tokens"
+	TENANT_URL = REGION_URL + "tenants"
+	OBJECT_STORE = ts.URL + "/object_store/"
+	CDN_URL = ts.URL + "/cdn/"
+	COMPUTE_URL = ts.URL + "/compute/"
 	account.A.Token.ID = "faketoken"
 }
 
-func (trt *testRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	if req.Header.Get("X-Auth-Token") == "" {
-		trt.Status = false
-		trt.Message = "X-Auth-Token Missing"
-	}
+var account Access
+var th = testHandler{}
+var ts = httptest.NewServer(th)
+var functionalTest http.HandlerFunc
 
-	return nil, errors.New("Not implemented")
+type testHandler struct {
+	Status         bool
+	Message        string
+	FunctionalTest http.HandlerFunc
 }
 
-var account Access
-var testclient http.Client
-var testtrasport testRoundTripper
+func (th testHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	functionalTest(w, req)
+}
 
 func TestCreateServerPrerequisites(t *testing.T) {
 	setUp()
@@ -57,9 +57,21 @@ func TestCreateServerPrerequisites(t *testing.T) {
 }
 
 func TestRequestHeadersAreCorrect(t *testing.T) {
-	setUp()
-	account.baseComputeRequest("", "", nil)
-	if !testtrasport.Status {
-		t.Error(testtrasport.Message)
+	f := func(w http.ResponseWriter, req *http.Request) {
+		if req.Header.Get("X-Auth-Token") == "" {
+			t.Error("Missing auth token.")
+		}
+		if req.Header.Get("Content-type") == "" {
+			t.Error("Missing content type")
+		}
+		if req.Header.Get("Content-type") != "application/json" {
+			t.Error("Incorrect content type")
+		}
 	}
+	functionalTest = f
+	account.CreateServer(Server{
+		ImageRef:  DebianSqueeze6_0_3Kernel,
+		FlavorRef: XSmall,
+		Name:      "TestServer",
+	})
 }
