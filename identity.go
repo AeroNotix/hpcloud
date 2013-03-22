@@ -67,6 +67,22 @@ func Authenticate(user, pass, tenantID string) (*Access, error) {
 		}
 		a.Fail = u
 		return a, nil
+	case http.StatusForbidden:
+		f := Forbidden{}
+		err = json.Unmarshal(body, &f)
+		if err != nil {
+			return nil, err
+		}
+		a.Fail = f
+		return a, nil
+	case http.StatusInternalServerError:
+		ise := InternalServerError{}
+		err = json.Unmarshal(body, &ise)
+		if err != nil {
+			return nil, err
+		}
+		a.Fail = ise
+		return a, nil
 	}
 	panic("Unreachable!")
 }

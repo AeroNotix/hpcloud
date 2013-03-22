@@ -40,6 +40,36 @@ type Unauthorized struct {
 	} `json:"unauthorized"`
 }
 
+/*
+ Forbidden describes the response from a JSON resource when the
+ request could not be completed due to the user making the request
+ being disabled or suspended.
+*/
+type Forbidden struct {
+	F struct {
+		Code            int64  `json:"code"`
+		Details         string `json:"details"`
+		Message         string `json:"message"`
+		OtherAttributes struct {
+		} `json:"otherAttributes"`
+	} `json:"forbidden"`
+}
+
+/*
+ InternalServerError describes the response from a JSON resource when the
+ request could not be completed due to the request causing the service
+ to return a 500 status code.
+*/
+type InternalServerError struct {
+	ISE struct {
+		Code            int64  `json:"code"`
+		Details         string `json:"details"`
+		Message         string `json:"message"`
+		OtherAttributes struct {
+		} `json:"otherAttributes"`
+	} `json:"internalServerError"`
+}
+
 type SubToken struct {
 	ID string `json:"id"`
 }
@@ -62,6 +92,14 @@ func (b BadRequest) Code() int64 {
 	return b.B.Code
 }
 
+func (f Forbidden) Code() int64 {
+	return f.F.Code
+}
+
+func (ise InternalServerError) Code() int64 {
+	return ise.ISE.Code
+}
+
 func (u Unauthorized) Details() string {
 	return u.U.Details
 }
@@ -70,10 +108,26 @@ func (b BadRequest) Details() string {
 	return b.B.Details
 }
 
+func (f Forbidden) Details() string {
+	return f.F.Details
+}
+
+func (ise InternalServerError) Details() string {
+	return ise.ISE.Details
+}
+
 func (u Unauthorized) Message() string {
 	return u.U.Message
 }
 
 func (b BadRequest) Message() string {
 	return b.B.Message
+}
+
+func (f Forbidden) Message() string {
+	return f.F.Message
+}
+
+func (ise InternalServerError) Message() string {
+	return ise.ISE.Message
 }
