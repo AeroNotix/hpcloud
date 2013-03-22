@@ -54,3 +54,55 @@ func TestAuthenticate(t *testing.T) {
 		t.Error("Failed to correctly parse the authentication response.")
 	}
 }
+
+func TestAuthenticate400(t *testing.T) {
+	httpTestsSetUp(func(w http.ResponseWriter, req *http.Request) {
+		w.WriteHeader(http.StatusBadRequest)
+	})
+	acc, err := Authenticate("", "", "")
+	if err == nil {
+		t.Error("Failed to properly handle 400.")
+	}
+	if acc != nil {
+		t.Error("Send back a useable account when the authenticate call failed.")
+	}
+}
+
+func TestAuthenticate401(t *testing.T) {
+	httpTestsSetUp(func(w http.ResponseWriter, req *http.Request) {
+		w.WriteHeader(http.StatusUnauthorized)
+	})
+	acc, err := Authenticate("", "", "")
+	if err == nil {
+		t.Error("Failed to properly handle 401.")
+	}
+	if acc != nil {
+		t.Error("Send back a useable account when the authenticate call failed.")
+	}
+}
+
+func TestAuthenticate403(t *testing.T) {
+	httpTestsSetUp(func(w http.ResponseWriter, req *http.Request) {
+		w.WriteHeader(http.StatusForbidden)
+	})
+	acc, err := Authenticate("", "", "")
+	if err == nil {
+		t.Error("Failed to properly handle 403.")
+	}
+	if acc != nil {
+		t.Error("Send back a useable account when the authenticate call failed.")
+	}
+}
+
+func TestAuthenticate500(t *testing.T) {
+	httpTestsSetUp(func(w http.ResponseWriter, req *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	})
+	acc, err := Authenticate("", "", "")
+	if err == nil {
+		t.Error("Failed to properly handle 500.")
+	}
+	if acc != nil {
+		t.Error("Send back a useable account when the authenticate call failed.")
+	}
+}
