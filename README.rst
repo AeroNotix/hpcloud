@@ -1,3 +1,5 @@
+.. image:: https://travis-ci.org/AeroNotix/hpcloud.png?branch=master
+
 HPCloud Go bindings
 ===================
 
