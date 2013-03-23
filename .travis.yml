@@ -1,1 +1,5 @@
 language: go
+notifications:
+  email:
+	- aaron.l.france@gmail.com
+	- aaron.france@hp.com
