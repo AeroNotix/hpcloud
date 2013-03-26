@@ -21,6 +21,7 @@ type BadRequest struct {
 type NotFound struct {
 	NF struct {
 		Message string `json:"message"`
+		Details string `json:"details"`
 		Code    int    `json:"code"`
 	} `json:"itemNotFound"`
 }
