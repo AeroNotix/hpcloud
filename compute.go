@@ -68,16 +68,6 @@ type IDLink struct {
 	Links []Link `json:"links"`
 }
 
-type Flavor_ struct {
-	Name  string `json:"name"`
-	ID    int64  `json:"id"`
-	Links []Link `json:"links"`
-}
-
-type Flavors struct {
-	F []Flavor_ `json:"flavors"`
-}
-
 type Image struct {
 	I struct {
 		Name     string            `json:"name"`

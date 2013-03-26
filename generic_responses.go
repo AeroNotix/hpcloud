@@ -74,6 +74,16 @@ type SubToken struct {
 	ID string `json:"id"`
 }
 
+type Flavor_ struct {
+	Name  string `json:"name"`
+	ID    int64  `json:"id"`
+	Links []Link `json:"links"`
+}
+
+type Flavors struct {
+	F []Flavor_ `json:"flavors"`
+}
+
 type Tenants struct {
 	T []Tenant `json:"tenants"`
 }
