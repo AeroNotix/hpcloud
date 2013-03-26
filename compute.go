@@ -296,14 +296,14 @@ func (a Access) baseComputeRequest(url, method string, b io.Reader) ([]byte, err
 		if err != nil {
 			return nil, err
 		}
-		return nil, errors.New(nf.NF.Message)
+		return nil, errors.New(nf.Message())
 	default:
 		br := &BadRequest{}
 		err = json.Unmarshal(body, br)
 		if err != nil {
 			return nil, err
 		}
-		return nil, errors.New(br.B.Message)
+		return nil, errors.New(br.Message())
 	}
 	panic("Unreachable")
 }
