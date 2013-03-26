@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"mime"
 	"net/http"
 	"path/filepath"
@@ -77,24 +76,9 @@ func (a Access) ObjectStoreDelete(filename string) error {
 
 func (a Access) ListObjects(directory string) (*FileList, error) {
 	path := fmt.Sprintf("%s%s/%s", OBJECT_STORE, a.TenantID, directory)
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", path, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("X-Auth-Token", a.AuthToken())
-	req.Header.Add("Accept", "application/json")
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
+	body, err := a.baseRequest(path, "GET", nil)
 	fl := &FileList{}
-	err = json.Unmarshal(b, fl)
+	err = json.Unmarshal(body, fl)
 	if err != nil {
 		return nil, err
 	}

@@ -17,6 +17,7 @@ func (a Access) baseRequest(url, method string, b io.Reader) ([]byte, error) {
 		req.Header.Add("X-Auth-Token", a.AuthToken())
 	}
 	req.Header.Add("Content-type", "application/json")
+	req.Header.Add("Accept", "application/json")
 	resp, err := a.Client.Do(req)
 	if err != nil {
 		return nil, err
