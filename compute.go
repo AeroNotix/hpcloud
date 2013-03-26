@@ -7,8 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"net/http"
 	"strings"
 )
 
@@ -271,41 +269,7 @@ func (a Access) ListImage(image_id string) (*Image, error) {
 */
 func (a Access) baseComputeRequest(url, method string, b io.Reader) ([]byte, error) {
 	path := fmt.Sprintf("%s%s/%s", COMPUTE_URL, a.TenantID, url)
-	req, err := http.NewRequest(method, path, b)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("X-Auth-Token", a.AuthToken())
-	req.Header.Add("Content-type", "application/json")
-	resp, err := a.Client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	switch resp.StatusCode {
-	case http.StatusAccepted:
-	case http.StatusNonAuthoritativeInfo:
-	case http.StatusOK:
-		return body, nil
-	case http.StatusNotFound:
-		nf := &NotFound{}
-		err = json.Unmarshal(body, nf)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(nf.Message())
-	default:
-		br := &BadRequest{}
-		err = json.Unmarshal(body, br)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(br.Message())
-	}
-	panic("Unreachable")
+	return a.baseRequest(path, method, b)
 }
 
 /*

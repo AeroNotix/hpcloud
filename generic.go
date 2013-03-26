@@ -1,5 +1,76 @@
 package hpcloud
 
+import (
+	"encoding/json"
+	"errors"
+	"io"
+	"io/ioutil"
+	"net/http"
+)
+
+func (a Access) baseRequest(url, method string, b io.Reader) ([]byte, error) {
+	req, err := http.NewRequest(method, url, b)
+	if err != nil {
+		return nil, err
+	}
+	if a.Authenticated {
+		req.Header.Add("X-Auth-Token", a.AuthToken())
+	}
+	req.Header.Add("Content-type", "application/json")
+	resp, err := a.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	switch resp.StatusCode {
+	case http.StatusAccepted:
+	case http.StatusNonAuthoritativeInfo:
+	case http.StatusOK:
+		return body, nil
+	case http.StatusNotFound:
+		nf := &NotFound{}
+		err = json.Unmarshal(body, nf)
+		if err != nil {
+			return nil, err
+		}
+		return nil, errors.New(nf.Message())
+	case http.StatusBadRequest:
+		br := &BadRequest{}
+		err = json.Unmarshal(body, br)
+		if err != nil {
+			return nil, err
+		}
+		return nil, errors.New(br.Message())
+	case http.StatusUnauthorized:
+		u := &Unauthorized{}
+		err = json.Unmarshal(body, &u)
+		if err != nil {
+			return nil, err
+		}
+		return nil, err
+	case http.StatusForbidden:
+		f := &Forbidden{}
+		err = json.Unmarshal(body, &f)
+		if err != nil {
+			return nil, errors.New(f.Message())
+		}
+		return nil, err
+	case http.StatusInternalServerError:
+		ise := &InternalServerError{}
+		err = json.Unmarshal(body, &ise)
+		if err != nil {
+			return nil, errors.New(ise.Message())
+		}
+		return nil, err
+	default:
+		panic("Unhandled response type!")
+	}
+	panic("Unreachable!")
+}
+
 /*
  BadRequest describes the response from a JSON resource when the
  data which was sent in the original request was malformed or not

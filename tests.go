@@ -13,6 +13,7 @@ func httpTestsSetUp(f http.HandlerFunc) {
 	CDN_URL = ts.URL + "/cdn/"
 	COMPUTE_URL = ts.URL + "/compute"
 	test_account.A.Token.ID = "faketoken"
+	test_account.Authenticated = true
 	if f != nil {
 		functionalTest = f
 	}

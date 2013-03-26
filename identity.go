@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"strings"
 )
@@ -23,92 +22,37 @@ func Authenticate(user, pass, tenantID string) (*Access, error) {
 		},
 	}
 	d, err := json.Marshal(l)
-
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
-	resp, err := http.Post(
+	a := &Access{}
+	a.TenantID = tenantID
+	body, err := a.baseRequest(
 		TOKEN_URL,
-		"application/json",
+		"POST",
 		strings.NewReader(string(d)),
 	)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-
+	err = json.Unmarshal(body, a)
 	if err != nil {
 		return nil, err
 	}
-	a := &Access{}
-	a.TenantID = tenantID
-	switch resp.StatusCode {
-	case http.StatusOK:
-		err = json.Unmarshal(body, a)
-		if err != nil {
-			return nil, err
-		}
-		return a, nil
-	case http.StatusBadRequest:
-		b := BadRequest{}
-		err = json.Unmarshal(body, &b)
-		if err != nil {
-			return nil, err
-		}
-		a.Fail = b
-		return a, nil
-	case http.StatusUnauthorized:
-		u := Unauthorized{}
-		err = json.Unmarshal(body, &u)
-		if err != nil {
-			return nil, err
-		}
-		a.Fail = u
-		return a, nil
-	case http.StatusForbidden:
-		f := Forbidden{}
-		err = json.Unmarshal(body, &f)
-		if err != nil {
-			return nil, err
-		}
-		a.Fail = f
-		return a, nil
-	case http.StatusInternalServerError:
-		ise := InternalServerError{}
-		err = json.Unmarshal(body, &ise)
-		if err != nil {
-			return nil, err
-		}
-		a.Fail = ise
-		return a, nil
-	}
-	panic("Unreachable!")
+	a.Authenticated = true
+	return a, nil
 }
 
-func (a *Access) GetTenants() {
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", TENANT_URL, nil)
-	req.Header.Add("X-Auth-Token", a.A.Token.ID)
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer resp.Body.Close()
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+func (a *Access) GetTenants() error {
+	body, err := a.baseRequest(TENANT_URL, "GET", nil)
 	t := &Tenants{}
-	err = json.Unmarshal(b, t)
+	err = json.Unmarshal(body, t)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 	a.Tenants = t.T
+	return nil
 }
 
 /*
@@ -141,56 +85,20 @@ func (a Access) ScopeToken(name string) (*Access, error) {
 	if err != nil {
 		return nil, err
 	}
-	resp, err := http.Post(
+	body, err := a.baseRequest(
 		TOKEN_URL,
-		"application/json",
+		"POST",
 		strings.NewReader(string(b)),
 	)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	newa := &Access{}
+	err = json.Unmarshal(body, newa)
 	if err != nil {
 		return nil, err
 	}
-	newa := &Access{}
-	switch resp.StatusCode {
-	case http.StatusOK:
-		err = json.Unmarshal(body, newa)
-		if err != nil {
-			return nil, err
-		}
-		return newa, nil
-	case http.StatusBadRequest:
-		b := BadRequest{}
-		err = json.Unmarshal(body, &b)
-		if err != nil {
-			return nil, err
-		}
-		newa.Fail = b
-		return newa, nil
-	case http.StatusUnauthorized:
-		u := Unauthorized{}
-		err = json.Unmarshal(body, &u)
-		if err != nil {
-			return nil, err
-		}
-		newa.Fail = u
-		return newa, nil
-	}
-	panic("Unreachable!")
-}
-
-func (a Access) IsFailed() bool {
-	return a.Fail != nil
-}
-
-func (a Access) Describe() string {
-	return fmt.Sprintf(
-		"Code: %d\nDetails: %s\nMessage: %s\n",
-		a.Fail.Code(), a.Fail.Details(), a.Fail.Message(),
-	)
+	return newa, nil
 }
 
 /*
@@ -203,12 +111,20 @@ type Access struct {
 		User     User             `json:"user"`
 		Catalogs []ServiceCatalog `json:"serviceCatalog"`
 	} `json:"access"`
-	Fail      FailureResponse
-	Tenants   []Tenant
-	SecretKey string
-	AccessKey string
-	TenantID  string
-	Client    http.Client
+	Authenticated bool
+	Tenants       []Tenant
+	SecretKey     string
+	AccessKey     string
+	TenantID      string
+	Client        http.Client
+}
+
+/*
+ Token is a helper method to traverse the Access type to retrieve the
+ auth_token
+*/
+func (a Access) AuthToken() string {
+	return a.A.Token.ID
 }
 
 type Login struct {
@@ -299,14 +215,6 @@ type Token struct {
 	Expires string  `json:"expires"`
 	ID      string  `json:"id"`
 	Tenant  *Tenant `json:"tenant"`
-}
-
-/*
- Token is a helper method to traverse the Access type to retrieve the
- auth_token
-*/
-func (a Access) AuthToken() string {
-	return a.A.Token.ID
 }
 
 type Scope struct {
