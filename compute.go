@@ -253,6 +253,11 @@ func (a Access) ListFlavors() (*Flavors, error) {
 	}
 	return fl, nil
 }
+
+/*
+  CreateImage will make a snapshot of the server_id along with associating the
+  relevant metadata with it.
+*/
 func (a Access) CreateImage(server_id string, metadata *map[string]string) error {
 	cir := &createImageRequest{C: imageRequest{Name: server_id, Metadata: metadata}}
 	jsonbody, err := cir.MarshalJSON()
