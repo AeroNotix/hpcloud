@@ -21,7 +21,7 @@ type BadRequest struct {
 type NotFound struct {
 	NF struct {
 		Message string `json:"message"`
-		Code    int    `json:"code"`
+		Code    int64  `json:"code"`
 	} `json:"itemNotFound"`
 }
 
@@ -128,10 +128,6 @@ func (f Forbidden) Details() string {
 
 func (ise InternalServerError) Details() string {
 	return ise.ISE.Details
-}
-
-func (nf NotFound) Details() string {
-	return nf.NF.Details
 }
 
 func (u Unauthorized) Message() string {
