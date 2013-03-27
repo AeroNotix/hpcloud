@@ -52,11 +52,6 @@ var (
 	EnterpriseDBPSQL9_1_3     = ServerImage(9995)
 )
 
-type Link struct {
-	HREF string `json:"href"`
-	Rel  string `json:"rel"`
-}
-
 /*
   Several embedded types are simply an ID string with a slice of Link
 */
