@@ -212,10 +212,7 @@ func (a Access) DeleteServer(server_id string) error {
 		fmt.Sprintf("servers/%s", server_id),
 		"DELETE", nil,
 	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 /*
@@ -236,10 +233,7 @@ func (a Access) RebootServer(server_id string) error {
 		fmt.Sprintf("servers/%s/action", server_id),
 		"POST", strings.NewReader(s),
 	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 
 }
 
@@ -270,10 +264,7 @@ func (a Access) CreateImage(server_id string, metadata *map[string]string) error
 		"POST",
 		bytes.NewReader(jsonbody),
 	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (a Access) ListImages() (*Images, error) {
@@ -293,10 +284,7 @@ func (a Access) DeleteImage(image_id string) error {
 	_, err := a.baseComputeRequest(
 		fmt.Sprintf("images/%s", image_id), "DELETE", nil,
 	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (a Access) ListImage(image_id string) (*Image, error) {
