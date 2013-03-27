@@ -314,6 +314,27 @@ func (a Access) ListImage(image_id string) (*Image, error) {
 	return i, nil
 }
 
+func (a Access) GetConsoleOutput(server_id string, length int) (string, error) {
+	jsonbody := fmt.Sprintf(
+		`{"os-getConsoleOutput":{"length":%d}}`, length,
+	)
+	body, err := a.baseComputeRequest(
+		fmt.Sprintf("servers/%s/action", server_id), "POST", strings.NewReader(jsonbody),
+	)
+	if err != nil {
+		return "", err
+	}
+	type Output struct {
+		Output_ string `json:"output"`
+	}
+	o := &Output{}
+	err = json.Unmarshal(body, o)
+	if err != nil {
+		return "", err
+	}
+	return o.Output_, nil
+}
+
 /*
   baseComputeRequest encapsulates the main basic request
   which is done for each endpoint in the Compute API.
