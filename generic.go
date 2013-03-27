@@ -3,6 +3,7 @@ package hpcloud
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -76,7 +77,7 @@ func (a Access) baseRequest(url, method string, b io.Reader) ([]byte, error) {
 		}
 		return nil, err
 	default:
-		panic("Unhandled response type!")
+		panic(fmt.Sprintf("Unhandled response type: %d", resp.StatusCode))
 	}
 	panic("Unreachable!")
 }
