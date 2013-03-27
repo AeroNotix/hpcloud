@@ -187,10 +187,6 @@ func (ise InternalServerError) Code() int64 {
 	return ise.ISE.Code
 }
 
-func (nf NotFound) Code() int64 {
-	return nf.NF.Code
-}
-
 func (u Unauthorized) Details() string {
 	return u.U.Details
 }
