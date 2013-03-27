@@ -27,20 +27,37 @@ func (a Access) ListDBInstances() (*DBInstances, error) {
 	return dbs, nil
 }
 
+func (a Access) ListAllFlavors() (*DBFlavors, error) {
+	url := fmt.Sprintf("%s%s/flavors", RDB_URL, a.TenantID)
+	body, err := a.baseRequest(url, "GET", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	flv := &DBFlavors{}
+	err = json.Unmarshal(body, flv)
+	if err != nil {
+		return nil, err
+	}
+	return flv, nil
+}
+
 /*
  CreateDBInstance creates new database instance in the HPCloud using
 settings found in the DatabaseReq instance passed to this function
 
  This function implements the interface as described in:
  http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/create-instance.html
-*/
-/*func (a Access) CreateDBInstance(db DatabaseReq) (*NewDBInstance, error) {
-	b, err := db.MarshalJSON()
+*/ /*
+func (a Access) CreateDBInstance(db DatabaseReq) (*NewDBInstance, error) {
+	b, err := json.M
 	if err != nil {
 		return nil, err
 	}
 
-	body, err := a.baseRDBRequest("instances", "POST",
+	url := fmt.Sprintf("%s%s/instances", RDB_URL, a.TenantID)
+
+	body, err := a.baseRequest(url, "POST",
 		strings.NewReader(string(b)))
 	if err != nil {
 		return nil, err
@@ -52,7 +69,7 @@ settings found in the DatabaseReq instance passed to this function
 		return nil, err
 	}
 	return sr, nil
-} */
+}*/
 
 type DBInstance struct {
 	Created string  `json:"created"`
@@ -67,24 +84,37 @@ type DBInstances struct {
 	Instances []DBInstance `json:"instances"`
 }
 
+type Database struct {
+	Name      string `json:"name"`
+	FlavorRef string `json:"flavorRef"`
+	Port      int    `json:"port"`
+	DBType    struct {
+		Name    string `json:"name"`
+		Version string `json:"version"`
+	} `json:"dbtype"`
+}
+
+type DBFlavors struct {
+	Flavors []DBFlavor `json:"flavors"`
+}
+
+/*
+ Type describing database flavor
+*/
+type DBFlavor struct {
+	Id    int    `json:"id"`
+	Links []Link `json:"links"`
+	Name  string `json:"name"`
+	Ram   int    `json:"ram"`
+	Vcpu  int    `json:"vcpu"`
+}
+
 /*
  This type describes the JSON data which should be sent to the 
 create database instance resource.
 */
 type DatabaseReq struct {
 	Instance Database `json:"instance"`
-}
-
-type Database struct {
-	Name      string       `json:"name"`
-	FlavorRef string       `json:"flavorRef"`
-	Port      int          `json:"port"`
-	Dbtype    DatabaseType `json:"port"`
-}
-
-type DatabaseType struct {
-	Name    string `json:"name"`
-	Version string `json:"version"`
 }
 
 /*
