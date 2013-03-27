@@ -1,13 +1,14 @@
 package hpcloud
 
 import (
+	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
-	"io/ioutil"
-	"net/http"
-	//"strings"
+
+//	"io"
+//	"io/ioutil"
+//	"net/http"
+//  "strings"
 )
 
 /*
@@ -48,7 +49,7 @@ settings found in the DatabaseReq instance passed to this function
 
  This function implements the interface as described in:
  http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/create-instance.html
-*/ /*
+*/
 func (a Access) CreateDBInstance(db DatabaseReq) (*NewDBInstance, error) {
 	b, err := json.M
 	if err != nil {
@@ -69,7 +70,7 @@ func (a Access) CreateDBInstance(db DatabaseReq) (*NewDBInstance, error) {
 		return nil, err
 	}
 	return sr, nil
-}*/
+}
 
 type DBInstance struct {
 	Created string  `json:"created"`
@@ -147,4 +148,18 @@ type DBSecGroups struct {
 type DBCredentials struct {
 	Password string `json:"password"`
 	Username string `json:"username"`
+}
+
+func (f DBFlavors) GetFlavorRef(fn string) string {
+	for _, val := range f.Flavors {
+		if val.Name == fn {
+			return val.Links.HREF
+		}
+	}
+	panic("Flavor not found")
+}
+
+func (db DatabaseReq) MarshalJSON() []byte {
+	b := bytes.NewBufferString("")
+
 }
