@@ -194,10 +194,7 @@ func (a Access) CreateServer(s Server) (*ServerResponse, error) {
 	}
 	sr := &ServerResponse{}
 	err = json.Unmarshal(body, sr)
-	if err != nil {
-		return nil, err
-	}
-	return sr, nil
+	return sr, err
 }
 
 /*
@@ -248,10 +245,7 @@ func (a Access) ListFlavors() (*Flavors, error) {
 	}
 	fl := &Flavors{}
 	err = json.Unmarshal(body, fl)
-	if err != nil {
-		return nil, err
-	}
-	return fl, nil
+	return fl, err
 }
 
 /*
@@ -279,10 +273,7 @@ func (a Access) ListImages() (*Images, error) {
 	}
 	im := &Images{}
 	err = json.Unmarshal(body, im)
-	if err != nil {
-		return nil, err
-	}
-	return im, nil
+	return im, err
 }
 
 func (a Access) DeleteImage(image_id string) error {
@@ -301,10 +292,7 @@ func (a Access) ListImage(image_id string) (*Image, error) {
 	}
 	i := &Image{}
 	err = json.Unmarshal(body, i)
-	if err != nil {
-		return nil, err
-	}
-	return i, nil
+	return i, err
 }
 
 func (a Access) GetConsoleOutput(server_id string, length int) (string, error) {
@@ -322,10 +310,7 @@ func (a Access) GetConsoleOutput(server_id string, length int) (string, error) {
 	}
 	o := &Output{}
 	err = json.Unmarshal(body, o)
-	if err != nil {
-		return "", err
-	}
-	return o.Output_, nil
+	return o.Output_, err
 }
 
 /*
