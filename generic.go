@@ -8,6 +8,13 @@ import (
 	"net/http"
 )
 
+/*
+  baseRequest is a helper method which we do not export.
+
+  Since a lot of the ReST api's endpoints require very common things,
+  as well as returning the same errors in error conditions we are able
+  to have a base method which most requests Go through.
+*/
 func (a Access) baseRequest(url, method string, b io.Reader) ([]byte, error) {
 	req, err := http.NewRequest(method, url, b)
 	if err != nil {
