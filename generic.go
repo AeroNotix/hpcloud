@@ -177,6 +177,30 @@ type FailureResponse interface {
 	Message() string
 }
 
+type Rule struct {
+	FromPort      int    `json:"from_port"`
+	ToPort        int    `json:"to_port"`
+	ID            int64  `json:"id"`
+	IPProtocol    string `json:"ip_protocol"`
+	ParentGroupID int64  `json:"parent_group_id"`
+	IPRange       struct {
+		CIDR string `json:"cidr"`
+	} `json:"ip_range"`
+	Group struct {
+		Name     string `json:"name"`
+		TenandID string `json:"tenant_id"`
+	} `json:"group"`
+}
+
+type SecurityGroup struct {
+	Id          int64  `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Rules       []Rule `json:"rules"`
+	Links       []Link `json:"links"`
+	Created     string `json:"created"`
+}
+
 func (u Unauthorized) Code() int64 {
 	return u.U.Code
 }

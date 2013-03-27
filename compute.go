@@ -97,7 +97,7 @@ type Server struct {
 	Key            string            `json:"key_name"`
 	Personality    string            `json:"personality"`
 	UserData       string            `json:"user_data"`
-	SecurityGroups []IDLink          `json:"security_groups"`
+	SecurityGroups []SecurityGroup   `json:"security_groups"`
 	Links          []Link            `json:"links"`
 	Metadata       map[string]string `json:"metadata"`
 	UUID           string            `json:"uuid"`
@@ -166,7 +166,7 @@ type ServerResponse struct {
 		Flavor         IDLink            `json:"flavor"`
 		ConfigDrive    string            `json:"config_drive"`
 		ID             int64             `json:"id"`
-		SecurityGroups []IDLink          `json:"security_groups"`
+		SecurityGroups []SecurityGroup   `json:"security_groups"`
 		Metadata       map[string]string `json:"metadata"`
 	} `json:"server"`
 }
