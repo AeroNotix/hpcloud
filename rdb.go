@@ -18,7 +18,7 @@ func (a Access) ListDBInstances() (*DBInstances, error) {
 		return nil, err
 	}
 	dbs := &DBInstances{}
-	err := json.Unmarshal(body, dbs)
+	err = json.Unmarshal(body, dbs)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ settings found in the DatabaseReq instance passed to this function
  This function implements the interface as described in:
  http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/create-instance.html
 */
-func (a Access) CreateDBInstance(db DatabaseReq) *NewDBInstance.error {
+func (a Access) CreateDBInstance(db DatabaseReq) (*NewDBInstance, error) {
 	b, err := db.MarshalDBJSON()
 	if err != nil {
 		return nil, err
@@ -163,7 +163,7 @@ type NewDBInstance struct {
 	Flavor         Flavor_       `json:"flavor"`
 	Hostname       string        `json:"hostname"`
 	Id             string        `json:"id"`
-	Links          []link        `json:"links"`
+	Links          []Link        `json:"links"`
 	Name           string        `json:"name"`
 	SecurityGroups []DBSecGroups `json:"security_groups"`
 	Status         string        `json:"status"`
