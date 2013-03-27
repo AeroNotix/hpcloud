@@ -59,6 +59,8 @@ A few examples:
 	/* Delete that server we just created */
 	fmt.Println(acc.DeleteServer(s.S.ID))
 
+    /* You can also image your server */
+    acc.CreateImage(s.S.ID, map[string]string{"Metadata":"Value"})
 
 Any questions or bugs, please let me know and I will be happy to look over pull
 requests or feature ideas.
