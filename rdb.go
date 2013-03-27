@@ -77,6 +77,26 @@ func (a Access) CreateDBInstance(db DatabaseReq) (*NewDBInstance, error) {
 	return sr, nil
 }
 
+/*
+ This function retrieves details of the instance with provided ID.
+
+This function implements the interface as described in:
+http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/get-instance.html
+*/
+func (a Access) GetDBInstance(id string) (*InstDetails, error) {
+	url := fmt.Sprintf("%s%s/instances/%s", RDB_URL, a.TenantID, id)
+	body, err := a.baseRequest(url, "GET", nil)
+	if err != nil {
+		return nil, err
+	}
+	det := &InstDetails{}
+	err = json.Unmarshal(body, det)
+	if err != nil {
+		return nil, err
+	}
+	return det, nil
+}
+
 type DBInstance struct {
 	Created string  `json:"created"`
 	Flavor  Flavor_ `json:"flavor"`
