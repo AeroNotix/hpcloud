@@ -13,3 +13,6 @@ var CDN_URL = "https://region-b.geo-1.cdnmgmt.hpcloudsvc.com/v1.0/"
 
 /* Compute */
 var COMPUTE_URL = "https://az-1.region-a.geo-1.compute.hpcloudsvc.com/v1.1/"
+
+/* RDB */
+var RDB_URL = "https://region-a.geo-1.cdnmgmt.hpcloudsvc.com/v1.0/"
