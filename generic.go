@@ -35,6 +35,7 @@ func (a Access) baseRequest(url, method string, b io.Reader) ([]byte, error) {
 	}
 	switch resp.StatusCode {
 	case
+		http.StatusNoContent,
 		http.StatusAccepted,
 		http.StatusNonAuthoritativeInfo,
 		http.StatusOK:
