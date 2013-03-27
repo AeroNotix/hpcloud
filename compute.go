@@ -112,32 +112,28 @@ type imageRequest struct {
 func (c createImageRequest) MarshalJSON() ([]byte, error) {
 	output_buffer := bytes.NewBufferString(`{"createImage":{`)
 	output_buffer.WriteString(fmt.Sprintf(`"name": "%s"`, c.C.Name))
-	metadata_buffer := &bytes.Buffer{}
-	if c.C.Metadata != nil {
-		if len(*c.C.Metadata) > 0 {
-			metadata_buffer = bytes.NewBufferString("metadata:{")
-			cnt := 0
-			for k, v := range *c.C.Metadata {
-				if len(k) > 255 {
-					return nil, errors.New(fmt.Sprintf("Key: %s has a length >255", k))
-				}
-				if len(v) > 255 {
-					return nil, errors.New(fmt.Sprintf("Value: %s has a length >255", v))
-				}
-				metadata_buffer.WriteString(
-					fmt.Sprintf(`"%s":"%s"`, k, v),
-				)
-				if cnt+1 != len(*c.C.Metadata) {
-					metadata_buffer.WriteString(",")
-					cnt++
-				} else {
-					metadata_buffer.WriteString("}")
-				}
+	if c.C.Metadata != nil && len(*c.C.Metadata) > 0 {
+		metadata_buffer := bytes.NewBufferString("metadata:{")
+		cnt := 0
+		for k, v := range *c.C.Metadata {
+			if len(k) > 255 {
+				return nil, errors.New(fmt.Sprintf("Key: %s has a length >255", k))
+			}
+			if len(v) > 255 {
+				return nil, errors.New(fmt.Sprintf("Value: %s has a length >255", v))
+			}
+			metadata_buffer.WriteString(
+				fmt.Sprintf(`"%s":"%s"`, k, v),
+			)
+			if cnt+1 != len(*c.C.Metadata) {
+				metadata_buffer.WriteString(",")
+				cnt++
+			} else {
+				metadata_buffer.WriteString("}")
 			}
 		}
 		output_buffer.WriteString(",")
 		output_buffer.WriteString(metadata_buffer.String())
-
 	}
 	output_buffer.WriteString("}}")
 	return output_buffer.Bytes(), nil
