@@ -14,7 +14,8 @@ import (
  ListDBInstances will list all the available database instances
 */
 func (a Access) ListDBInstances() (*DBInstances, error) {
-	body, err := a.baseRDBRequest("instances", "GET", nil, 0)
+	url := fmt.Sprintf("%s%s/instances", RDB_URL, a.TenantID)
+	body, err := a.baseRequest(url, "GET", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +41,7 @@ settings found in the DatabaseReq instance passed to this function
 	}
 
 	body, err := a.baseRDBRequest("instances", "POST",
-		strings.NewReader(string(b)), 119)
+		strings.NewReader(string(b)))
 	if err != nil {
 		return nil, err
 	}
@@ -52,74 +53,6 @@ settings found in the DatabaseReq instance passed to this function
 	}
 	return sr, nil
 } */
-
-func (a Access) baseRDBRequest(url, method string, b io.Reader, conLen int) ([]byte, error) {
-	path := fmt.Sprintf("%s%s/%s", RDB_URL, a.TenantID, url)
-	req, err := http.NewRequest(method, path, b)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Accept", "application/json")
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("X-Auth-Token", a.AuthToken())
-	if conLen != 0 {
-		req.Header.Add("Content-Length", string(conLen))
-	}
-
-	resp, err := a.Client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	switch resp.StatusCode {
-	case http.StatusOK:
-		return body, nil
-	case http.StatusCreated:
-		return body, nil
-	case http.StatusUnauthorized:
-		ua := &Unauthorized{}
-		err = json.Unmarshal(body, ua)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(ua.Message())
-	case http.StatusForbidden:
-		fr := &Forbidden{}
-		err = json.Unmarshal(body, fr)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(fr.Message())
-	case http.StatusInternalServerError:
-		ise := &InternalServerError{}
-		err = json.Unmarshal(body, ise)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(ise.Message())
-	case http.StatusNotFound:
-		nf := &NotFound{}
-		err = json.Unmarshal(body, nf)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(nf.Message())
-	default:
-		br := &BadRequest{}
-		err = json.Unmarshal(body, br)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(br.Message())
-	}
-	panic("Unreachable")
-}
 
 type DBInstance struct {
 	Created string  `json:"created"`
