@@ -3,12 +3,9 @@ package hpcloud
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
-
-//	"io"
-//	"io/ioutil"
-//	"net/http"
-//  "strings"
+	"strings"
 )
 
 /*
@@ -159,7 +156,25 @@ func (f DBFlavors) GetFlavorRef(fn string) string {
 	panic("Flavor not found")
 }
 
-func (db DatabaseReq) MarshalJSON() []byte {
-	b := bytes.NewBufferString("")
+func (db DatabaseReq) MarshalJSON() ([]byte, error) {
+	b := bytes.NewBufferString(`{"instance":{`)
+	if db.Instance.Name == "" {
+		return nil, errors.New("A name is required")
+	}
+	b.WriteString(fmt.Sprintf(`"name":"%s",`, db.Instance.Name))
+	if db.Instance.FlavorRef == "" {
+		return nil, errors.New("Flavor is required")
+	}
+	b.WriteString(fmt.Sprintf(`"flavorRef":"%s",`,
+		db.Instance.FlavorRef))
+	if db.Instance.Port == "" {
+		b.WriteString(`"port":"3306",`)
+	} else {
+		b.WriteString(fmt.Sprintf(`"port":"%s",`, db.Instance.Port))
+	}
+	b.WriteString(`"dbtype":{`)
+	b.WriteString(`"name":"mysql",`)
+	b.WriteString(`"version":"5.5"}}}`)
 
+	return b.Bytes(), nil
 }
