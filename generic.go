@@ -81,6 +81,28 @@ type Link struct {
 }
 
 /*
+ Security Rule type
+*/
+type SecRule struct {
+	Id      string `json:"id"`
+	Iprange struct {
+		Cidr string `json:"cidr"`
+	}
+}
+
+/*
+ Security Group type
+*/
+type SecurityGroup struct {
+	Id          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Rules       []SecRule `json:"rules"`
+	Links       []Link    `json:"links"`
+	Created     string    `json:"created"`
+}
+
+/*
  BadRequest describes the response from a JSON resource when the
  data which was sent in the original request was malformed or not
  compliant with the layout specified in the HPCloud documentation
