@@ -73,6 +73,14 @@ func (a Access) baseRequest(url, method string, b io.Reader) ([]byte, error) {
 }
 
 /*
+ Link data type used across modules
+*/
+type Link struct {
+	HREF string `json:"href"`
+	Rel  string `json:"rel"`
+}
+
+/*
  BadRequest describes the response from a JSON resource when the
  data which was sent in the original request was malformed or not
  compliant with the layout specified in the HPCloud documentation
