@@ -252,7 +252,6 @@ func (a Access) ListFlavors() (*Flavors, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	fl := &Flavors{}
 	err = json.Unmarshal(body, fl)
 	if err != nil {
