@@ -100,6 +100,49 @@ type Server struct {
 	Metadata       map[string]string `json:"metadata"`
 }
 
+type createImageRequest struct {
+	C imageRequest `json:"createImage"`
+}
+
+type imageRequest struct {
+	Metadata *map[string]string `json:"metadata"`
+	Name     string             `json:"image"`
+}
+
+func (c createImageRequest) MarshalJSON() ([]byte, error) {
+	output_buffer := bytes.NewBufferString(`{"createImage":{`)
+	output_buffer.WriteString(fmt.Sprintf(`"name": "%s"`, c.C.Name))
+	metadata_buffer := &bytes.Buffer{}
+	if c.C.Metadata != nil {
+		if len(*c.C.Metadata) > 0 {
+			metadata_buffer = bytes.NewBufferString("metadata:{")
+			cnt := 0
+			for k, v := range *c.C.Metadata {
+				if len(k) > 255 {
+					return nil, errors.New(fmt.Sprintf("Key: %s has a length >255", k))
+				}
+				if len(v) > 255 {
+					return nil, errors.New(fmt.Sprintf("Value: %s has a length >255", v))
+				}
+				metadata_buffer.WriteString(
+					fmt.Sprintf(`"%s":"%s"`, k, v),
+				)
+				if cnt+1 != len(*c.C.Metadata) {
+					metadata_buffer.WriteString(",")
+					cnt++
+				} else {
+					metadata_buffer.WriteString("}")
+				}
+			}
+		}
+		output_buffer.WriteString(",")
+		output_buffer.WriteString(metadata_buffer.String())
+
+	}
+	output_buffer.WriteString("}}")
+	return output_buffer.Bytes(), nil
+}
+
 /*
   This type describes the JSON response from a successful CreateServer
   call.
@@ -216,6 +259,22 @@ func (a Access) ListFlavors() (*Flavors, error) {
 		return nil, err
 	}
 	return fl, nil
+}
+func (a Access) CreateImage(server_id string, metadata *map[string]string) error {
+	cir := &createImageRequest{C: imageRequest{Name: server_id, Metadata: metadata}}
+	jsonbody, err := cir.MarshalJSON()
+	if err != nil {
+		return err
+	}
+	_, err = a.baseComputeRequest(
+		fmt.Sprintf("servers/%s/action", server_id),
+		"POST",
+		bytes.NewReader(jsonbody),
+	)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (a Access) ListImages() (*Images, error) {
