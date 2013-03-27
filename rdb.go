@@ -10,6 +10,9 @@ import (
 
 /*
  ListDBInstances will list all the available database instances
+
+This function implements the interface as described in:
+http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/list-database-instances.html
 */
 func (a Access) ListDBInstances() (*DBInstances, error) {
 	url := fmt.Sprintf("%s%s/instances", RDB_URL, a.TenantID)
@@ -25,6 +28,11 @@ func (a Access) ListDBInstances() (*DBInstances, error) {
 	return dbs, nil
 }
 
+/*
+ ListAllFlavors lists all available database flavors.
+ This function implements interface as described in:-
+http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/list-flavors.html
+*/
 func (a Access) ListAllFlavors() (*DBFlavors, error) {
 	url := fmt.Sprintf("%s%s/flavors", RDB_URL, a.TenantID)
 	body, err := a.baseRequest(url, "GET", nil)
@@ -48,7 +56,7 @@ settings found in the DatabaseReq instance passed to this function
  http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/create-instance.html
 */
 func (a Access) CreateDBInstance(db DatabaseReq) (*NewDBInstance, error) {
-	b, err := json.M
+	b, err := db.MarshalJSON()
 	if err != nil {
 		return nil, err
 	}
@@ -94,6 +102,22 @@ type Database struct {
 
 type DBFlavors struct {
 	Flavors []DBFlavor `json:"flavors"`
+}
+
+/*
+ Instance Details type that is returned by server
+*/
+type InstDetails struct {
+	Created        string          `json:"created"`
+	Flavor         Flavor_         `json:"flavor"`
+	Hostname       string          `json:"hostname"`
+	Id             string          `json:"id"`
+	Links          []Link          `json:"links"`
+	Name           string          `json:"name"`
+	Port           int             `json:"port"`
+	SecurityGroups []SecurityGroup `json:"security_groups"`
+	Status         string          `json:"status"`
+	Updated        string          `json:"updated"`
 }
 
 /*
