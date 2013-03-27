@@ -25,31 +25,31 @@ const (
 /* Available images */
 type ServerImage int
 
-const (
+var (
 	UbuntuLucid10_04Kernel    = ServerImage(1235)
-	UbuntuLucid10_04          = 1236
-	UbuntuMaverick10_10Kernel = 1237
-	UbuntuMaverick10_10       = 1238
-	UbuntuNatty11_04Kernel    = 1239
-	UbuntuNatty11_04          = 1240
-	UbuntuOneiric11_10        = 5579
-	UbuntuPrecise12_04        = 8419
-	CentOS5_8Server64         = 54021
-	CentOS6_2Server64Kernel   = 1356
-	CentOS6_2Server64Ramdisk  = 1357
-	CentOS6_2Server64         = 1358
-	DebianSqueeze6_0_3Kernel  = 1359
-	DebianSqueeze6_0_3Ramdisk = 1360
-	DebianSqueeze6_0_3Server  = 1361
-	Fedora16Server64          = 16291
-	BitNamiDrupal7_14_0       = 22729
-	BitNamiWebPack1_2_0       = 22731
-	BitNamiDevPack1_0_0       = 4654
-	ActiveStateStackatov1_2_6 = 14345
-	ActiveStateStackatov2_2_2 = 59297
-	ActiveStateStackatov2_2_3 = 60815
-	EnterpriseDBPPAS9_1_2     = 9953
-	EnterpriseDBPSQL9_1_3     = 9995
+	UbuntuLucid10_04          = ServerImage(1236)
+	UbuntuMaverick10_10Kernel = ServerImage(1237)
+	UbuntuMaverick10_10       = ServerImage(1238)
+	UbuntuNatty11_04Kernel    = ServerImage(1239)
+	UbuntuNatty11_04          = ServerImage(1240)
+	UbuntuOneiric11_10        = ServerImage(5579)
+	UbuntuPrecise12_04        = ServerImage(8419)
+	CentOS5_8Server64         = ServerImage(54021)
+	CentOS6_2Server64Kernel   = ServerImage(1356)
+	CentOS6_2Server64Ramdisk  = ServerImage(1357)
+	CentOS6_2Server64         = ServerImage(1358)
+	DebianSqueeze6_0_3Kernel  = ServerImage(1359)
+	DebianSqueeze6_0_3Ramdisk = ServerImage(1360)
+	DebianSqueeze6_0_3Server  = ServerImage(1361)
+	Fedora16Server64          = ServerImage(16291)
+	BitNamiDrupal7_14_0       = ServerImage(22729)
+	BitNamiWebPack1_2_0       = ServerImage(22731)
+	BitNamiDevPack1_0_0       = ServerImage(4654)
+	ActiveStateStackatov1_2_6 = ServerImage(14345)
+	ActiveStateStackatov2_2_2 = ServerImage(59297)
+	ActiveStateStackatov2_2_3 = ServerImage(60815)
+	EnterpriseDBPPAS9_1_2     = ServerImage(9953)
+	EnterpriseDBPSQL9_1_3     = ServerImage(9995)
 )
 
 type Link struct {
