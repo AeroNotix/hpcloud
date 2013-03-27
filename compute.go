@@ -87,6 +87,7 @@ type Images struct {
   server resource.
 */
 type Server struct {
+	ID             int64             `json:"id"`
 	ConfigDrive    bool              `json:"config_drive"`
 	FlavorRef      Flavor            `json:"flavorRef"`
 	ImageRef       ServerImage       `json:"imageRef"`
@@ -97,7 +98,9 @@ type Server struct {
 	Personality    string            `json:"personality"`
 	UserData       string            `json:"user_data"`
 	SecurityGroups []IDLink          `json:"security_groups"`
+	Links          []Link            `json:"links"`
 	Metadata       map[string]string `json:"metadata"`
+	UUID           string            `json:"uuid"`
 }
 
 type createImageRequest struct {
@@ -191,6 +194,19 @@ func (a Access) CreateServer(s Server) (*ServerResponse, error) {
 	sr := &ServerResponse{}
 	err = json.Unmarshal(body, sr)
 	return sr, err
+}
+
+func (a Access) ListServers() ([]Server, error) {
+	body, err := a.baseComputeRequest("servers", "GET", nil)
+	if err != nil {
+		return nil, err
+	}
+	type Servers struct {
+		S []Server `json:"servers"`
+	}
+	svrs := &Servers{}
+	err = json.Unmarshal(body, svrs)
+	return svrs.S, err
 }
 
 /*
