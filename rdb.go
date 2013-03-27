@@ -7,13 +7,14 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 /*
  ListDBInstances will list all the available database instances
 */
 func (a Access) ListDBInstances() (*DBInstances, error) {
-	body, err := a.baseRDBRequest("instances", "GET", nil, nil)
+	body, err := a.baseRDBRequest("instances", "GET", nil, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -32,8 +33,8 @@ settings found in the DatabaseReq instance passed to this function
  This function implements the interface as described in:
  http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/create-instance.html
 */
-func (a Access) CreateDBInstance(db DatabaseReq) (*NewDBInstance, error) {
-	b, err := db.MarshalDBJSON()
+/*func (a Access) CreateDBInstance(db DatabaseReq) (*NewDBInstance, error) {
+	b, err := db.MarshalJSON()
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +51,7 @@ func (a Access) CreateDBInstance(db DatabaseReq) (*NewDBInstance, error) {
 		return nil, err
 	}
 	return sr, nil
-}
+} */
 
 func (a Access) baseRDBRequest(url, method string, b io.Reader, conLen int) ([]byte, error) {
 	path := fmt.Sprintf("%s%s/%s", RDB_URL, a.TenantID, url)
@@ -63,11 +64,11 @@ func (a Access) baseRDBRequest(url, method string, b io.Reader, conLen int) ([]b
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("X-Auth-Token", a.AuthToken())
 	if conLen != nil {
-		req.Header.Add("Content-Length", conLen)
+		req.Header.Add("Content-Length", string(conLen))
 	}
 
 	resp, err := a.Client.Do(req)
-	if err != nil {
+	if err != 0 {
 		return nil, err
 	}
 
@@ -81,8 +82,8 @@ func (a Access) baseRDBRequest(url, method string, b io.Reader, conLen int) ([]b
 		return body, nil
 	case http.StatusCreated:
 		return body, nil
-	case http.StatusUnathorized:
-		ua := &Unathorized{}
+	case http.StatusUnauthorized:
+		ua := &Unauthorized{}
 		err = json.Unmarshal(body, ua)
 		if err != nil {
 			return nil, err
@@ -115,7 +116,7 @@ func (a Access) baseRDBRequest(url, method string, b io.Reader, conLen int) ([]b
 		if err != nil {
 			return nil, err
 		}
-		return nil, errors.New(br.B.Message)
+		return nil, errors.New(br.Message())
 	}
 	panic("Unreachable")
 }

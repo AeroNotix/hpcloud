@@ -110,6 +110,10 @@ func (ise InternalServerError) Code() int64 {
 	return ise.ISE.Code
 }
 
+func (nf NotFound) Code() int64 {
+	return nf.NF.Code
+}
+
 func (u Unauthorized) Details() string {
 	return u.U.Details
 }
@@ -126,6 +130,10 @@ func (ise InternalServerError) Details() string {
 	return ise.ISE.Details
 }
 
+func (nf NotFound) Details() string {
+	return nf.NF.Details
+}
+
 func (u Unauthorized) Message() string {
 	return u.U.Message
 }
@@ -140,4 +148,8 @@ func (f Forbidden) Message() string {
 
 func (ise InternalServerError) Message() string {
 	return ise.ISE.Message
+}
+
+func (nf NotFound) Message() string {
+	return nf.NF.Message
 }
