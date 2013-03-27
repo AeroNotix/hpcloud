@@ -7,7 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"strings"
+	//"strings"
 )
 
 /*
@@ -63,12 +63,12 @@ func (a Access) baseRDBRequest(url, method string, b io.Reader, conLen int) ([]b
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("X-Auth-Token", a.AuthToken())
-	if conLen != nil {
+	if conLen != 0 {
 		req.Header.Add("Content-Length", string(conLen))
 	}
 
 	resp, err := a.Client.Do(req)
-	if err != 0 {
+	if err != nil {
 		return nil, err
 	}
 
