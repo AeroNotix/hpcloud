@@ -35,8 +35,27 @@ This function implements the interface as described in:
 http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/delete-instance.html
 */
 func (a Access) DeleteDBInstance(instanceID string) error {
-	url := fmt.Sprintf("%s%s/instances/%s", RDB_URL, a.TenantID, instanceID)
+	url := fmt.Sprintf("%s%s/instances/%s", RDB_URL, a.TenantID,
+		instanceID)
 	_, err := a.baseRequest(url, "DELETE", nil)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+/*
+ This function takes instance ID and restarts DB instance with this ID.
+
+This function implements the interface as described in:
+http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/restart-instance.html
+*/
+func (a Access) RestartDBInstance(instanceID string) error {
+	b := "{restart:{}}"
+	url := fmt.Sprintf("%s%s/instances/%s/action", RDB_URL,
+		a.TenantID, instanceID)
+	_, err := a.baseRequest(url, "POST", strings.NewReader(b))
 
 	if err != nil {
 		return err
