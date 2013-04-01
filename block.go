@@ -46,7 +46,7 @@ func (a Access) ListVolumes() ([]Volume, error) {
 	return vs.V, nil
 }
 
-func (a Access) ListVolumesForServer(server_id string) ([]Volume, error) {
+func (a Access) ListVolumesForServer(server_id string) ([]Attachment, error) {
 	resp, err := a.baseRequest(
 		fmt.Sprintf("%s%s/servers/%s/os-volume_attachments", COMPUTE_URL, a.TenantID, server_id),
 		"GET", nil,
@@ -54,10 +54,10 @@ func (a Access) ListVolumesForServer(server_id string) ([]Volume, error) {
 	if err != nil {
 		return nil, err
 	}
-	type Volumes struct {
-		V []Volume `json:"volumeAttachments"`
+	type Attachments struct {
+		V []Attachment `json:"volumeAttachments"`
 	}
-	vs := &Volumes{}
+	vs := &Attachments{}
 	json.Unmarshal(resp, vs)
 	return vs.V, nil
 }
