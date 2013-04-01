@@ -194,7 +194,7 @@ type DBCredentials struct {
 func (f DBFlavors) GetFlavorRef(fn string) string {
 	for _, val := range f.Flavors {
 		if val.Name == fn {
-			return val.Links.HREF
+			return val.Links[0].HREF
 		}
 	}
 	panic("Flavor not found")

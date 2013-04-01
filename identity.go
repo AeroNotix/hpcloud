@@ -105,18 +105,18 @@ func (a Access) ScopeToken(name string) (*Access, error) {
  This function takes service name and region as parameters and returns
 public URL for endpoint, that can be queried later on.
 */
-func (a Access) GetEndpointURL(servName string, region string) (string, error) {
+func (a Access) GetEndpointURL(servName string, region string) string {
 
 	for _, service := range a.A.Catalogs {
 		if service.Name == servName {
 			for _, endpoint := range service.Endpoints {
 				if endpoint.Region == region {
-					return endpoint.PublicURL, nil
+					return endpoint.PublicURL
 				}
 			}
 		}
 	}
-	return nil, errors.New("Service not found in this region")
+	panic("Service not found in this region")
 }
 
 /*
