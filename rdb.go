@@ -29,6 +29,22 @@ func (a Access) ListDBInstances() (*DBInstances, error) {
 }
 
 /*
+ This function takes instance ID and deletes database instance with this ID.
+
+This function implements the interface as described in:
+http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/delete-instance.html
+*/
+func (a Access) DeleteDBInstance(instanceID string) error {
+	url := fmt.Sprintf("%s%s/instances/%s", RDB_URL, a.TenantID, instanceID)
+	_, err := a.baseRequest(url, "DELETE", nil)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+/*
  ListAllFlavors lists all available database flavors.
  This function implements interface as described in:-
 http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/list-flavors.html
