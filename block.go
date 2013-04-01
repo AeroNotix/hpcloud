@@ -93,6 +93,19 @@ func (a Access) NewVolume(v *Volume) error {
 	return json.Unmarshal(resp, v)
 }
 
+func (a Access) DetachVolume(at Attachment) error {
+	_, err := a.baseRequest(
+		fmt.Sprintf(
+			"%s%s/servers/%d/os-volume_attachments/%d",
+			COMPUTE_URL, a.TenantID, at.ServerID, at.VolumeID,
+		), "DELETE", nil,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (v Volume) MarshalJSON() ([]byte, error) {
 	if v.Size <= 0 {
 		return nil, errors.New("Size cannot be <= 0")
