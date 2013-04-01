@@ -59,6 +59,22 @@ func (a Access) ListVolumesForServer(server_id string) ([]Volume, error) {
 	return vs.V, nil
 }
 
+func (a Access) ListSnapshots() ([]Volume, error) {
+	resp, err := a.baseRequest(
+		fmt.Sprintf("%s%s/os-snapshots", COMPUTE_URL, a.TenantID),
+		"GET", nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+	type Volumes struct {
+		V []Volume `json:"snapshots"`
+	}
+	vs := &Volumes{}
+	json.Unmarshal(resp, vs)
+	return vs.V, nil
+}
+
 func (a Access) NewVolume(v *Volume) error {
 	b, err := v.MarshalJSON()
 	if err != nil {
