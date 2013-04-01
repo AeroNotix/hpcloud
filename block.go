@@ -10,6 +10,10 @@ import (
 )
 
 type Volume struct {
+	ID               int64             `json:"id"`
+	Device           string            `json:"device"`
+	ServerID         string            `json:"serverId"`
+	VolumeID         string            `json:"volumeId"`
 	Status           string            `json:"status"`
 	CreatedAt        string            `json:"createdAt"`
 	Size             int64             `json:"size"`
