@@ -98,12 +98,16 @@ func (a Access) GetDBInstance(id string) (*InstDetails, error) {
 }
 
 type DBInstance struct {
-	Created string  `json:"created"`
-	Flavor  Flavor_ `json:"flavor"`
-	Id      string  `json:"id"`
-	Links   []Link  `json:"links"`
-	Name    string  `json:"name"`
-	Status  string  `json:"name"`
+	Created string `json:"created"`
+	Flavor  struct {
+		Name  string `json:"name"`
+		ID    string `json:"id"`
+		Links []Link `json:"links"`
+	} `json:"flavor"`
+	Id     string `json:"id"`
+	Links  []Link `json:"links"`
+	Name   string `json:"name"`
+	Status string `json:"name"`
 }
 
 type DBInstances struct {
@@ -211,7 +215,7 @@ func (db DatabaseReq) MarshalJSON() ([]byte, error) {
 	}
 	b.WriteString(fmt.Sprintf(`"flavorRef":"%s",`,
 		db.Instance.FlavorRef))
-	if db.Instance.Port == "" {
+	if db.Instance.Port == 0 {
 		b.WriteString(`"port":"3306",`)
 	} else {
 		b.WriteString(fmt.Sprintf(`"port":"%s",`, db.Instance.Port))
