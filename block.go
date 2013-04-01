@@ -10,10 +10,6 @@ import (
 )
 
 type Volume struct {
-	ID               int64             `json:"id"`
-	Device           string            `json:"device"`
-	ServerID         string            `json:"serverId"`
-	VolumeID         string            `json:"volumeId"`
 	Status           string            `json:"status"`
 	CreatedAt        string            `json:"createdAt"`
 	Size             int64             `json:"size"`
@@ -24,7 +20,14 @@ type Volume struct {
 	Metadata         map[string]string `json:"metadata"`
 	AvailabilityZone string            `json:"availability_zone"`
 	VolumeType       string            `json:"volume_type"`
-	Attachments      []interface{}     `json:"attachments"`
+	Attachments      []Attachment      `json:"attachments"`
+}
+
+type Attachment struct {
+	ID       int64  `json:"id"`
+	Device   string `json:"device"`
+	ServerID int64  `json:"serverId"`
+	VolumeID int64  `json:"volumeId"`
 }
 
 func (a Access) ListVolumes() ([]Volume, error) {
