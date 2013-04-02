@@ -171,8 +171,12 @@ type DBFlavors struct {
  Instance Details type that is returned by server
 */
 type InstDetails struct {
-	Created        string          `json:"created"`
-	Flavor         Flavor_         `json:"flavor"`
+	Created string `json:"created"`
+	Flavor  struct {
+		Name  string `json:"name"`
+		ID    string `json:"id"`
+		Links []Link `json:"links"`
+	} `json:"flavor"`
 	Hostname       string          `json:"hostname"`
 	Id             string          `json:"id"`
 	Links          []Link          `json:"links"`
