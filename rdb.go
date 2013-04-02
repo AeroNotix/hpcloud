@@ -22,10 +22,7 @@ func (a Access) ListDBInstances() (*DBInstances, error) {
 	}
 	dbs := &DBInstances{}
 	err = json.Unmarshal(body, dbs)
-	if err != nil {
-		return nil, err
-	}
-	return dbs, nil
+	return dbs, err
 }
 
 /*
@@ -38,11 +35,7 @@ func (a Access) DeleteDBInstance(instanceID string) error {
 	url := fmt.Sprintf("%s%s/instances/%s", RDB_URL, a.TenantID,
 		instanceID)
 	_, err := a.baseRequest(url, "DELETE", nil)
-
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 /*
@@ -56,11 +49,7 @@ func (a Access) RestartDBInstance(instanceID string) error {
 	url := fmt.Sprintf("%s%s/instances/%s/action", RDB_URL,
 		a.TenantID, instanceID)
 	_, err := a.baseRequest(url, "POST", strings.NewReader(b))
-
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 /*
@@ -77,10 +66,7 @@ func (a Access) ListAllFlavors() (*DBFlavors, error) {
 
 	flv := &DBFlavors{}
 	err = json.Unmarshal(body, flv)
-	if err != nil {
-		return nil, err
-	}
-	return flv, nil
+	return flv, err
 }
 
 /*

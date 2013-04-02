@@ -95,10 +95,7 @@ func (a Access) ScopeToken(name string) (*Access, error) {
 	}
 	newa := &Access{}
 	err = json.Unmarshal(body, newa)
-	if err != nil {
-		return nil, err
-	}
-	return newa, nil
+	return newa, err
 }
 
 /*
