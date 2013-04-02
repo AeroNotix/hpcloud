@@ -178,7 +178,7 @@ type InstDetails struct {
 		Links []Link `json:"links"`
 	} `json:"flavor"`
 	Hostname       string          `json:"hostname"`
-	Id             string          `json:"id"`
+	ID             string          `json:"id"`
 	Links          []Link          `json:"links"`
 	Name           string          `json:"name"`
 	Port           int             `json:"port"`
@@ -211,9 +211,13 @@ type DatabaseReq struct {
  call.
 */
 type NewDBInstance struct {
-	Created        string        `json:"created"`
-	Credential     DBCredentials `json:"credential"`
-	Flavor         Flavor_       `json:"flavor"`
+	Created    string        `json:"created"`
+	Credential DBCredentials `json:"credential"`
+	Flavor     struct {
+		Name  string `json:"name"`
+		ID    string `json:"id"`
+		Links []Link `json:"links"`
+	} `json:"flavor"`
 	Hostname       string        `json:"hostname"`
 	Id             string        `json:"id"`
 	Links          []Link        `json:"links"`
