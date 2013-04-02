@@ -113,7 +113,7 @@ func (a Access) CreateDBInstance(db DatabaseReq) (*NewDBInstance, error) {
 	if err != nil {
 		return nil, err
 	}
-	return sr.Instance, nil
+	return &sr.Instance, nil
 }
 
 /*
