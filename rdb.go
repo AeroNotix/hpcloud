@@ -116,23 +116,20 @@ func (a Access) GetDBInstance(id string) (*InstDetails, error) {
 	}
 	det := &InstDetails{}
 	err = json.Unmarshal(body, det)
-	if err != nil {
-		return nil, err
-	}
-	return det, nil
+	return det, err
 }
 
 type DBInstance struct {
 	Created string `json:"created"`
+	Id      string `json:"id"`
+	Links   []Link `json:"links"`
+	Name    string `json:"name"`
+	Status  string `json:"name"`
 	Flavor  struct {
 		Name  string `json:"name"`
 		ID    string `json:"id"`
 		Links []Link `json:"links"`
 	} `json:"flavor"`
-	Id     string `json:"id"`
-	Links  []Link `json:"links"`
-	Name   string `json:"name"`
-	Status string `json:"name"`
 }
 
 type DBInstances struct {
@@ -157,12 +154,7 @@ type DBFlavors struct {
  Instance Details type that is returned by server
 */
 type InstDetails struct {
-	Created string `json:"created"`
-	Flavor  struct {
-		Name  string `json:"name"`
-		ID    string `json:"id"`
-		Links []Link `json:"links"`
-	} `json:"flavor"`
+	Created        string          `json:"created"`
 	Hostname       string          `json:"hostname"`
 	ID             string          `json:"id"`
 	Links          []Link          `json:"links"`
@@ -171,6 +163,11 @@ type InstDetails struct {
 	SecurityGroups []SecurityGroup `json:"security_groups"`
 	Status         string          `json:"status"`
 	Updated        string          `json:"updated"`
+	Flavor         struct {
+		Name  string `json:"name"`
+		ID    string `json:"id"`
+		Links []Link `json:"links"`
+	} `json:"flavor"`
 }
 
 /*
