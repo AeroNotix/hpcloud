@@ -104,12 +104,16 @@ func (a Access) CreateDBInstance(db DatabaseReq) (*NewDBInstance, error) {
 		return nil, err
 	}
 
-	sr := &NewDBInstance{}
+	type respDB struct {
+		Instance NewDBInstance `json:"instance"`
+	}
+
+	sr := &respDB{}
 	err = json.Unmarshal(body, sr)
 	if err != nil {
 		return nil, err
 	}
-	return sr, nil
+	return sr.Instance, nil
 }
 
 /*
