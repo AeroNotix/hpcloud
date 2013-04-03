@@ -159,7 +159,7 @@ func (a Access) GetDBInstance(id string) (*InstDetails, error) {
 func (a Access) ResetDBPassword(id string) (*DBCredentials, error) {
 	b := "{reset-password:{}}"
 	url := fmt.Sprintf("%s%s/instances/%s/action", RDB_URL,
-		a.TenantID, instanceID)
+		a.TenantID, id)
 	body, err := a.baseRequest(url, "POST", strings.NewReader(b))
 
 	sr := &DBCredentials{}
