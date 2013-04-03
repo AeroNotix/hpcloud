@@ -191,6 +191,27 @@ func (a Access) ResetDBPassword(id string) (*DBCredentials, error) {
 	return sr, nil
 }
 
+/*
+ This function lists all the security groups available for tenant.
+
+ This function implements the interface as described in:
+ http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/list-security-groups.html
+*/
+func (a Access) GetDBSecurityGroups(*SecurityGroup, error) {
+	url := fmt.Sprintf("%s%s/security-groups", RDB_URL, a.TenantID)
+	body, err := a.baseRequest(url, "GET", nil)
+
+	type resp struct {
+		SecurityGroups SecurityGroup `json:"security-groups"`
+	}
+	sr = &resp{}
+	err = json.Unmarshal(body, sr)
+	if err != nil {
+		return nil, err
+	}
+	return &sr.SecurityGroups, nil
+}
+
 type DBInstance struct {
 	Created string `json:"created"`
 	Id      string `json:"id"`
