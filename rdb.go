@@ -52,7 +52,7 @@ This function implements the interface as described in:
 http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/restart-instance.html
 */
 func (a Access) RestartDBInstance(instanceID string) error {
-	b := "{restart:{}}"
+	b := `{"restart":{}}`
 	url := fmt.Sprintf("%s%s/instances/%s/action", RDB_URL,
 		a.TenantID, instanceID)
 	_, err := a.baseRequest(url, "POST", strings.NewReader(b))
@@ -165,7 +165,7 @@ func (a Access) GetDBInstance(id string) (*InstDetails, error) {
  http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/reset-instance-password.html
 */
 func (a Access) ResetDBPassword(id string) (*DBCredentials, error) {
-	b := "{reset-password:{}}"
+	b := `{"reset-password":{}}`
 	url := fmt.Sprintf("%s%s/instances/%s/action", RDB_URL,
 		a.TenantID, id)
 	body, err := a.baseRequest(url, "POST", strings.NewReader(b))
