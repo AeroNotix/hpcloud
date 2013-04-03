@@ -84,6 +84,27 @@ func (a Access) ListAllFlavors() (*DBFlavors, error) {
 }
 
 /*
+ This function returns flavor specs for given flavor.
+
+ This function implements the interface as described in:
+ http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/get-flavor.html
+*/
+func (a Access) GetDBFlavor(ID string) (*DBFlavor, error) {
+	url := fmt.Sprintf("%s%s/flavors/%s", RDB_URL, a.TenantID, ID)
+	body, err := a.baseRequest(url, "GET", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	flv := &DBFlavor{}
+	err = json.Unmarshal(body, flv)
+	if err != nil {
+		return nil, err
+	}
+	return flv, nil
+}
+
+/*
  CreateDBInstance creates new database instance in the HPCloud using
 settings found in the DatabaseReq instance passed to this function
 
