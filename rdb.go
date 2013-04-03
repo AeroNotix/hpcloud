@@ -106,7 +106,7 @@ func (a Access) ListAllFlavors() (*DBFlavors, error) {
  http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/get-flavor.html
 */
 func (a Access) GetDBFlavor(ID string) (*DBFlavor, error) {
-	url := fmt.Sprintf("%s%s/flavors/%s", RDB_URL, a.TenantID, ID)
+	url := fmt.Sprintf("%s/flavors/%s", RDB_URL, ID)
 	body, err := a.baseRequest(url, "GET", nil)
 	if err != nil {
 		return nil, err
