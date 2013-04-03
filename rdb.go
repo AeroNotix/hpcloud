@@ -136,6 +136,27 @@ func (a Access) GetDBInstance(id string) (*InstDetails, error) {
 	return det, nil
 }
 
+/*
+ This function takes instance ID and resets password for this instance. It
+ returns a new instance password.
+
+ This function implements the interface as decribed in:
+ http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/reset-instance-password.html
+*/
+func (a Access) ResetDBPassword(id string) (*DBCredentials, error) {
+	b := "{reset-password:{}}"
+	url := fmt.Sprintf("%s%s/instances/%s/action", RDB_URL,
+		a.TenantID, instanceID)
+	body, err := a.baseRequest(url, "POST", strings.NewReader(b))
+
+	sr := &DBCredentials{}
+	err = json.Unmarshal(body, sr)
+	if err != nil {
+		return nil, err
+	}
+	return sr, nil
+}
+
 type DBInstance struct {
 	Created string `json:"created"`
 	Flavor  struct {
