@@ -189,7 +189,7 @@ func (a Access) GetDBSecurityGroups() (*SecurityGroup, error) {
 	body, err := a.baseRequest(url, "GET", nil)
 
 	type resp struct {
-		SecurityGroups SecurityGroup `json:"security-groups"`
+		SecurityGroups []SecurityGroup `json:"security-groups"`
 	}
 	sr := &resp{}
 	err = json.Unmarshal(body, sr)
