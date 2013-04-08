@@ -197,12 +197,12 @@ func (a Access) ResetDBPassword(id string) (*DBCredentials, error) {
  This function implements the interface as described in:
  http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/list-security-groups.html
 */
-func (a Access) GetDBSecurityGroups() (*SecurityGroup, error) {
+func (a Access) GetDBSecurityGroups() (*[]SecurityGroup, error) {
 	url := fmt.Sprintf("%s%s/security-groups", RDB_URL, a.TenantID)
 	body, err := a.baseRequest(url, "GET", nil)
 
 	type resp struct {
-		SecurityGroups []SecurityGroup `json:"security-groups"`
+		SecurityGroups []SecurityGroup `json:"security_groups"`
 	}
 	sr := &resp{}
 	err = json.Unmarshal(body, sr)
@@ -210,6 +210,28 @@ func (a Access) GetDBSecurityGroups() (*SecurityGroup, error) {
 		return nil, err
 	}
 	return &sr.SecurityGroups, nil
+}
+
+/*
+ This function lists specific security group.
+
+ This function implements the interface as described in:
+ http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/get-security-group.html
+*/
+func (a Access) DBSecGroupDetails(sg string) (*SecurityGroup, error) {
+	url := fmt.Sprintf("%s%s/security-groups/%s", RDB_URL, a.TenantID, sg)
+	body, err := a.baseRequest(url, "GET", nil)
+
+	type resp struct {
+		SecurityGroup SecurityGroup `json:"security_group"`
+	}
+
+	sr := &resp{}
+	err = json.Unmarshal(body, sr)
+	if err != nil {
+		return nil, err
+	}
+	return &sr.SecurityGroup, nil
 }
 
 type DBInstance struct {
