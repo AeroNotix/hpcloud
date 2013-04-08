@@ -251,6 +251,25 @@ func (a Access) CreateDBSecRule(Req DBSecRuleReq) (*DBSecRule, error) {
 	return &sr.SecurityGroupRule, nil
 }
 
+/*
+ Deletes security rule
+
+ This function implements the interface as described in:
+ http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/delete-security-group-rule.html
+*/
+func (a Access) RemoveDBSecRule(ruleID string) error {
+	url := fmt.Sprintf("%s%s/security-group-rules/%s", RDB_URL,
+		a.TenantID, ruleID)
+
+	_, err := a.baseRequest(url, "DELETE", nil)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type DBInstance struct {
 	Created string `json:"created"`
 	Flavor  struct {
