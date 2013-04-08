@@ -197,7 +197,7 @@ func (a Access) ResetDBPassword(id string) (*DBCredentials, error) {
  This function implements the interface as described in:
  http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/list-security-groups.html
 */
-func (a Access) GetDBSecurityGroups(*SecurityGroup, error) {
+func (a Access) GetDBSecurityGroups() (*SecurityGroup, error) {
 	url := fmt.Sprintf("%s%s/security-groups", RDB_URL, a.TenantID)
 	body, err := a.baseRequest(url, "GET", nil)
 
