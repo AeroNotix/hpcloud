@@ -425,11 +425,11 @@ func (rq DBSecRuleReq) MarshalJSON() ([]byte, error) {
 	if rq.FromPort == 0 {
 		return nil, errors.New("from_port value is missing")
 	}
-	b.WriteString(fmt.Sprintf(`"from_port":"%s",`, rq.FromPort))
+	b.WriteString(fmt.Sprintf(`"from_port":%d,`, rq.FromPort))
 	if rq.ToPort == 0 {
 		return nil, errors.New("to_port value is missing")
 	}
-	b.WriteString(fmt.Sprintf(`"to_port":"%s"}}`, rq.ToPort))
+	b.WriteString(fmt.Sprintf(`"to_port":%d}}`, rq.ToPort))
 
 	return b.Bytes(), nil
 }
