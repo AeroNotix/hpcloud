@@ -1,29 +1,72 @@
 package hpcloud
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"io/ioutil"
-	"net/http"
-	//"strings"
+	"strings"
 )
 
 /*
  ListDBInstances will list all the available database instances
+
+This function implements the interface as described in:
+http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/list-database-instances.html
 */
 func (a Access) ListDBInstances() (*DBInstances, error) {
-	body, err := a.baseRDBRequest("instances", "GET", nil, 0)
+	url := fmt.Sprintf("%s%s/instances", RDB_URL, a.TenantID)
+	body, err := a.baseRequest(url, "GET", nil)
 	if err != nil {
 		return nil, err
 	}
 	dbs := &DBInstances{}
 	err = json.Unmarshal(body, dbs)
+	return dbs, err
+}
+
+/*
+ This function takes instance ID and deletes database instance with this ID.
+
+This function implements the interface as described in:
+http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/delete-instance.html
+*/
+func (a Access) DeleteDBInstance(instanceID string) error {
+	url := fmt.Sprintf("%s%s/instances/%s", RDB_URL, a.TenantID,
+		instanceID)
+	_, err := a.baseRequest(url, "DELETE", nil)
+	return err
+}
+
+/*
+ This function takes instance ID and restarts DB instance with this ID.
+
+This function implements the interface as described in:
+http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/restart-instance.html
+*/
+func (a Access) RestartDBInstance(instanceID string) error {
+	b := "{restart:{}}"
+	url := fmt.Sprintf("%s%s/instances/%s/action", RDB_URL,
+		a.TenantID, instanceID)
+	_, err := a.baseRequest(url, "POST", strings.NewReader(b))
+	return err
+}
+
+/*
+ ListAllFlavors lists all available database flavors.
+ This function implements interface as described in:-
+http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/list-flavors.html
+*/
+func (a Access) ListAllFlavors() (*DBFlavors, error) {
+	url := fmt.Sprintf("%s%s/flavors", RDB_URL, a.TenantID)
+	body, err := a.baseRequest(url, "GET", nil)
 	if err != nil {
 		return nil, err
 	}
-	return dbs, nil
+
+	flv := &DBFlavors{}
+	err = json.Unmarshal(body, flv)
+	return flv, err
 }
 
 /*
@@ -33,105 +76,109 @@ settings found in the DatabaseReq instance passed to this function
  This function implements the interface as described in:
  http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/create-instance.html
 */
-/*func (a Access) CreateDBInstance(db DatabaseReq) (*NewDBInstance, error) {
+func (a Access) CreateDBInstance(db DatabaseReq) (*NewDBInstance, error) {
 	b, err := db.MarshalJSON()
 	if err != nil {
 		return nil, err
 	}
 
-	body, err := a.baseRDBRequest("instances", "POST",
-		strings.NewReader(string(b)), 119)
+	url := fmt.Sprintf("%s%s/instances", RDB_URL, a.TenantID)
+
+	body, err := a.baseRequest(url, "POST",
+		strings.NewReader(string(b)))
 	if err != nil {
 		return nil, err
 	}
 
-	sr := &NewDBInstance{}
+	type respDB struct {
+		Instance NewDBInstance `json:"instance"`
+	}
+
+	sr := &respDB{}
 	err = json.Unmarshal(body, sr)
 	if err != nil {
 		return nil, err
 	}
-	return sr, nil
-} */
+	return &sr.Instance, nil
+}
 
-func (a Access) baseRDBRequest(url, method string, b io.Reader, conLen int) ([]byte, error) {
-	path := fmt.Sprintf("%s%s/%s", RDB_URL, a.TenantID, url)
-	req, err := http.NewRequest(method, path, b)
+/*
+ This function retrieves details of the instance with provided ID.
+
+This function implements the interface as described in:
+http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/get-instance.html
+*/
+func (a Access) GetDBInstance(id string) (*InstDetails, error) {
+	url := fmt.Sprintf("%s%s/instances/%s", RDB_URL, a.TenantID, id)
+	body, err := a.baseRequest(url, "GET", nil)
 	if err != nil {
 		return nil, err
 	}
-
-	req.Header.Add("Accept", "application/json")
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("X-Auth-Token", a.AuthToken())
-	if conLen != 0 {
-		req.Header.Add("Content-Length", string(conLen))
-	}
-
-	resp, err := a.Client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	switch resp.StatusCode {
-	case http.StatusOK:
-		return body, nil
-	case http.StatusCreated:
-		return body, nil
-	case http.StatusUnauthorized:
-		ua := &Unauthorized{}
-		err = json.Unmarshal(body, ua)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(ua.Message())
-	case http.StatusForbidden:
-		fr := &Forbidden{}
-		err = json.Unmarshal(body, fr)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(fr.Message())
-	case http.StatusInternalServerError:
-		ise := &InternalServerError{}
-		err = json.Unmarshal(body, ise)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(ise.Message())
-	case http.StatusNotFound:
-		nf := &NotFound{}
-		err = json.Unmarshal(body, nf)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(nf.Message())
-	default:
-		br := &BadRequest{}
-		err = json.Unmarshal(body, br)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(br.Message())
-	}
-	panic("Unreachable")
+	det := &InstDetails{}
+	err = json.Unmarshal(body, det)
+	return det, err
 }
 
 type DBInstance struct {
-	Created string  `json:"created"`
-	Flavor  Flavor_ `json:"flavor"`
-	Id      string  `json:"id"`
-	Links   []Link  `json:"links"`
-	Name    string  `json:"name"`
-	Status  string  `json:"name"`
+	Created string `json:"created"`
+	Id      string `json:"id"`
+	Links   []Link `json:"links"`
+	Name    string `json:"name"`
+	Status  string `json:"name"`
+	Flavor  struct {
+		Name  string `json:"name"`
+		ID    string `json:"id"`
+		Links []Link `json:"links"`
+	} `json:"flavor"`
 }
 
 type DBInstances struct {
 	Instances []DBInstance `json:"instances"`
+}
+
+type Database struct {
+	Name      string `json:"name"`
+	FlavorRef string `json:"flavorRef"`
+	Port      int    `json:"port"`
+	DBType    struct {
+		Name    string `json:"name"`
+		Version string `json:"version"`
+	} `json:"dbtype"`
+}
+
+type DBFlavors struct {
+	Flavors []DBFlavor `json:"flavors"`
+}
+
+/*
+ Instance Details type that is returned by server
+*/
+type InstDetails struct {
+	Created        string          `json:"created"`
+	Hostname       string          `json:"hostname"`
+	ID             string          `json:"id"`
+	Links          []Link          `json:"links"`
+	Name           string          `json:"name"`
+	Port           int             `json:"port"`
+	SecurityGroups []SecurityGroup `json:"security_groups"`
+	Status         string          `json:"status"`
+	Updated        string          `json:"updated"`
+	Flavor         struct {
+		Name  string `json:"name"`
+		ID    string `json:"id"`
+		Links []Link `json:"links"`
+	} `json:"flavor"`
+}
+
+/*
+ Type describing database flavor
+*/
+type DBFlavor struct {
+	Id    int    `json:"id"`
+	Links []Link `json:"links"`
+	Name  string `json:"name"`
+	Ram   int    `json:"ram"`
+	Vcpu  int    `json:"vcpu"`
 }
 
 /*
@@ -142,26 +189,18 @@ type DatabaseReq struct {
 	Instance Database `json:"instance"`
 }
 
-type Database struct {
-	Name      string       `json:"name"`
-	FlavorRef string       `json:"flavorRef"`
-	Port      int          `json:"port"`
-	Dbtype    DatabaseType `json:"port"`
-}
-
-type DatabaseType struct {
-	Name    string `json:"name"`
-	Version string `json:"version"`
-}
-
 /*
  This type describes JSON response from a successful CreateDBInstance
  call.
 */
 type NewDBInstance struct {
-	Created        string        `json:"created"`
-	Credential     DBCredentials `json:"credential"`
-	Flavor         Flavor_       `json:"flavor"`
+	Created    string        `json:"created"`
+	Credential DBCredentials `json:"credential"`
+	Flavor     struct {
+		Name  string `json:"name"`
+		ID    string `json:"id"`
+		Links []Link `json:"links"`
+	} `json:"flavor"`
 	Hostname       string        `json:"hostname"`
 	Id             string        `json:"id"`
 	Links          []Link        `json:"links"`
@@ -184,4 +223,36 @@ type DBSecGroups struct {
 type DBCredentials struct {
 	Password string `json:"password"`
 	Username string `json:"username"`
+}
+
+func (f DBFlavors) GetFlavorRef(fn string) string {
+	for _, val := range f.Flavors {
+		if val.Name == fn {
+			return val.Links[0].HREF
+		}
+	}
+	panic("Flavor not found")
+}
+
+func (db DatabaseReq) MarshalJSON() ([]byte, error) {
+	b := bytes.NewBufferString(`{"instance":{`)
+	if db.Instance.Name == "" {
+		return nil, errors.New("A name is required")
+	}
+	b.WriteString(fmt.Sprintf(`"name":"%s",`, db.Instance.Name))
+	if db.Instance.FlavorRef == "" {
+		return nil, errors.New("Flavor is required")
+	}
+	b.WriteString(fmt.Sprintf(`"flavorRef":"%s",`,
+		db.Instance.FlavorRef))
+	if db.Instance.Port == 0 {
+		b.WriteString(`"port":"3306",`)
+	} else {
+		b.WriteString(fmt.Sprintf(`"port":"%s",`, db.Instance.Port))
+	}
+	b.WriteString(`"dbtype":{`)
+	b.WriteString(`"name":"mysql",`)
+	b.WriteString(`"version":"5.5"}}}`)
+
+	return b.Bytes(), nil
 }

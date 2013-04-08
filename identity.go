@@ -95,10 +95,25 @@ func (a Access) ScopeToken(name string) (*Access, error) {
 	}
 	newa := &Access{}
 	err = json.Unmarshal(body, newa)
-	if err != nil {
-		return nil, err
+	return newa, err
+}
+
+/*
+ This function takes service name and region as parameters and returns
+public URL for endpoint, that can be queried later on.
+*/
+func (a Access) GetEndpointURL(servName string, region string) string {
+
+	for _, service := range a.A.Catalogs {
+		if service.Name == servName {
+			for _, endpoint := range service.Endpoints {
+				if endpoint.Region == region {
+					return endpoint.PublicURL
+				}
+			}
+		}
 	}
-	return newa, nil
+	panic("Service not found in this region")
 }
 
 /*
