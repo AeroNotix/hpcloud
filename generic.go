@@ -61,21 +61,21 @@ func (a Access) baseRequest(url, method string, b io.Reader) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return nil, err
+		return nil, errors.New(u.Message())
 	case http.StatusForbidden:
 		f := &Forbidden{}
 		err = json.Unmarshal(body, &f)
 		if err != nil {
-			return nil, errors.New(f.Message())
+			return nil, err
 		}
-		return nil, err
+		return nil, errors.New(f.Message())
 	case http.StatusInternalServerError:
 		ise := &InternalServerError{}
 		err = json.Unmarshal(body, &ise)
 		if err != nil {
-			return nil, errors.New(ise.Message())
+			return nil, err
 		}
-		return nil, err
+		return nil, errors.New(ise.Message())
 	default:
 		panic(fmt.Sprintf("Unhandled response type: %d", resp.StatusCode))
 	}
