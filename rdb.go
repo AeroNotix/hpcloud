@@ -234,6 +234,36 @@ func (a Access) DBSecGroupDetails(sg string) (*SecurityGroup, error) {
 	return &sr.SecurityGroup, nil
 }
 
+/*
+ Creates new security group rule
+
+ This function implements the interface as described in:
+ http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/create-security-group-rule.html
+*/
+func (a Access) CreateDBSecRule(Req DBSecRuleReq) (*DBSecRule, error) {
+	url := fmt.Sprintf("%s%s/security-group-rules", RDB_URL, a.TenantID)
+	b, err := Req.MarshalJSON()
+
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := a.baseRequest(url, "POST",
+		strings.NewReader(string(b)))
+
+	type resp struct {
+		SecurityGroupRule DBSecRule `json:"security_group_rule"`
+	}
+
+	sr := &resp{}
+	err = json.Unmarshal(body, sr)
+	if err != nil {
+		return nil, err
+	}
+
+	return &sr.SecurityGroupRule, nil
+}
+
 type DBInstance struct {
 	Created string `json:"created"`
 	Id      string `json:"id"`
@@ -340,6 +370,25 @@ type DBCredentials struct {
 	Username string `json:"username"`
 }
 
+/*
+ DB Security Group Create request struct
+*/
+type DBSecRuleReq struct {
+	SecurityGroupID string `json:"security_group_rule"`
+	Cidr            string `json:"cidr"`
+	FromPort        int64  `json:"from_port"`
+	ToPort          int64  `json:"to_port"`
+}
+
+type DBSecRule struct {
+	ID              string `json:"id"`
+	SecurityGroupID string `json:"security_group_rule"`
+	Cidr            string `json:"cidr"`
+	FromPort        int64  `json:"from_port"`
+	ToPort          int64  `json:"to_port"`
+	Created         string `json:"created"`
+}
+
 func (f DBFlavors) GetFlavorRef(fn string) string {
 	for _, val := range f.Flavors {
 		if val.Name == fn {
@@ -349,6 +398,9 @@ func (f DBFlavors) GetFlavorRef(fn string) string {
 	panic("Flavor not found")
 }
 
+/*
+ Creates JSON string for Create DB request
+*/
 func (db DatabaseReq) MarshalJSON() ([]byte, error) {
 	b := bytes.NewBufferString(`{"instance":{`)
 	if db.Instance.Name == "" {
@@ -368,6 +420,29 @@ func (db DatabaseReq) MarshalJSON() ([]byte, error) {
 	b.WriteString(`"dbtype":{`)
 	b.WriteString(`"name":"mysql",`)
 	b.WriteString(`"version":"5.5"}}}`)
+
+	return b.Bytes(), nil
+}
+
+func (rq DBSecRuleReq) MarshalJSON() ([]byte, error) {
+	b := bytes.NewBufferString(`{"security_group_rule":{`)
+	if rq.SecurityGroupID == "" {
+		return nil, errors.New("Security group ID required")
+	}
+	b.WriteString(fmt.Sprintf(`"security_group_id":"%s",`,
+		rq.SecurityGroupID))
+	if rq.Cidr == "" {
+		return nil, errors.New("Cidr is missing")
+	}
+	b.WriteString(fmt.Sprintf(`"cidr":"%s",`, rq.Cidr))
+	if rq.FromPort == 0 {
+		return nil, errors.New("from_port value is missing")
+	}
+	b.WriteString(fmt.Sprintf(`"from_port":"%s",`, rq.FromPort))
+	if rq.ToPort == 0 {
+		return nil, errors.New("to_port value is missing")
+	}
+	b.WriteString(fmt.Sprintf(`"to_port":"%s"}}`, rq.ToPort))
 
 	return b.Bytes(), nil
 }
