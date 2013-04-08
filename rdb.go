@@ -191,7 +191,7 @@ func (a Access) GetDBSecurityGroups(*SecurityGroup, error) {
 	type resp struct {
 		SecurityGroups SecurityGroup `json:"security-groups"`
 	}
-	sr = &resp{}
+	sr := &resp{}
 	err = json.Unmarshal(body, sr)
 	if err != nil {
 		return nil, err
