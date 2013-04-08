@@ -16,3 +16,7 @@ var COMPUTE_URL = "https://az-1.region-a.geo-1.compute.hpcloudsvc.com/v1.1/"
 
 /* RDB */
 var RDB_URL = "https://region-a.geo-1.cdnmgmt.hpcloudsvc.com/v1.0/"
+
+/* DNS */
+
+var DNS_URL = "https://region-a.geo-1.dns.hpcloudsvc.com/v1/"
