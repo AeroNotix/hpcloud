@@ -182,7 +182,7 @@ type DBFlavor struct {
 }
 
 /*
- This type describes the JSON data which should be sent to the 
+ This type describes the JSON data which should be sent to the
 create database instance resource.
 */
 type DatabaseReq struct {
@@ -210,7 +210,7 @@ type NewDBInstance struct {
 }
 
 /*
- This type describes Database Security groups 
+ This type describes Database Security groups
 */
 type DBSecGroups struct {
 	Id    string `json:"id"`
