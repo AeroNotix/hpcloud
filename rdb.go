@@ -75,7 +75,7 @@ This function implements the interface as described in:
 http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/restart-instance.html
 */
 func (a Access) RestartDBInstance(instanceID string) error {
-	b := "{restart:{}}"
+	b := `{"restart":{}}`
 	url := fmt.Sprintf("%s%s/instances/%s/action", RDB_URL,
 		a.TenantID, instanceID)
 	_, err := a.baseRequest(url, "POST", strings.NewReader(b))
@@ -97,6 +97,27 @@ func (a Access) ListAllFlavors() (*DBFlavors, error) {
 	flv := &DBFlavors{}
 	err = json.Unmarshal(body, flv)
 	return flv, err
+}
+
+/*
+ This function returns flavor specs for given flavor.
+
+ This function implements the interface as described in:
+ http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/get-flavor.html
+*/
+func (a Access) GetDBFlavor(ID string) (*DBFlavor, error) {
+	url := fmt.Sprintf("%s/flavors/%s", RDB_URL, ID)
+	body, err := a.baseRequest(url, "GET", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	flv := &DBFlavor{}
+	err = json.Unmarshal(body, flv)
+	if err != nil {
+		return nil, err
+	}
+	return flv, nil
 }
 
 /*
@@ -147,6 +168,119 @@ func (a Access) GetDBInstance(id string) (*InstDetails, error) {
 	det := &InstDetails{}
 	err = json.Unmarshal(body, det)
 	return det, err
+}
+
+/*
+ This function takes instance ID and resets password for this instance. It
+ returns a new instance password.
+
+ This function implements the interface as decribed in:
+ http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/reset-instance-password.html
+*/
+func (a Access) ResetDBPassword(id string) (*DBCredentials, error) {
+	b := `{"reset-password":{}}`
+	url := fmt.Sprintf("%s%s/instances/%s/action", RDB_URL,
+		a.TenantID, id)
+	body, err := a.baseRequest(url, "POST", strings.NewReader(b))
+
+	sr := &DBCredentials{}
+	err = json.Unmarshal(body, sr)
+	if err != nil {
+		return nil, err
+	}
+	return sr, nil
+}
+
+/*
+ This function lists all the security groups available for tenant.
+
+ This function implements the interface as described in:
+ http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/list-security-groups.html
+*/
+func (a Access) GetDBSecurityGroups() (*[]SecurityGroup, error) {
+	url := fmt.Sprintf("%s%s/security-groups", RDB_URL, a.TenantID)
+	body, err := a.baseRequest(url, "GET", nil)
+
+	type resp struct {
+		SecurityGroups []SecurityGroup `json:"security_groups"`
+	}
+	sr := &resp{}
+	err = json.Unmarshal(body, sr)
+	if err != nil {
+		return nil, err
+	}
+	return &sr.SecurityGroups, nil
+}
+
+/*
+ This function lists specific security group.
+
+ This function implements the interface as described in:
+ http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/get-security-group.html
+*/
+func (a Access) DBSecGroupDetails(sg string) (*SecurityGroup, error) {
+	url := fmt.Sprintf("%s%s/security-groups/%s", RDB_URL, a.TenantID, sg)
+	body, err := a.baseRequest(url, "GET", nil)
+
+	type resp struct {
+		SecurityGroup SecurityGroup `json:"security_group"`
+	}
+
+	sr := &resp{}
+	err = json.Unmarshal(body, sr)
+	if err != nil {
+		return nil, err
+	}
+	return &sr.SecurityGroup, nil
+}
+
+/*
+ Creates new security group rule
+
+ This function implements the interface as described in:
+ http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/create-security-group-rule.html
+*/
+func (a Access) CreateDBSecRule(Req DBSecRuleReq) (*DBSecRule, error) {
+	url := fmt.Sprintf("%s%s/security-group-rules", RDB_URL, a.TenantID)
+	b, err := Req.MarshalJSON()
+
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := a.baseRequest(url, "POST",
+		strings.NewReader(string(b)))
+
+	type resp struct {
+		SecurityGroupRule DBSecRule `json:"security_group_rule"`
+	}
+
+	sr := &resp{}
+	err = json.Unmarshal(body, sr)
+	if err != nil {
+		return nil, err
+	}
+
+	return &sr.SecurityGroupRule, nil
+}
+
+/*
+ Deletes security rule
+
+ This function implements the interface as described in:
+ http://api-docs.hpcloud.com/hpcloud-rdb-mysql/1.0/content/delete-security-group-rule.html
+*/
+func (a Access) RemoveDBSecRule(ruleID string) error {
+	url := fmt.Sprintf("%s%s/security-group-rules/%s", RDB_URL,
+		a.TenantID, ruleID)
+
+	_, err := a.baseRequest(url, "DELETE", nil)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type DBInstance struct {
@@ -255,6 +389,25 @@ type DBCredentials struct {
 	Username string `json:"username"`
 }
 
+/*
+ DB Security Group Create request struct
+*/
+type DBSecRuleReq struct {
+	SecurityGroupID string `json:"security_group_rule"`
+	Cidr            string `json:"cidr"`
+	FromPort        int64  `json:"from_port"`
+	ToPort          int64  `json:"to_port"`
+}
+
+type DBSecRule struct {
+	ID              string `json:"id"`
+	SecurityGroupID string `json:"security_group_rule"`
+	Cidr            string `json:"cidr"`
+	FromPort        int64  `json:"from_port"`
+	ToPort          int64  `json:"to_port"`
+	Created         string `json:"created"`
+}
+
 func (f DBFlavors) GetFlavorRef(fn string) string {
 	for _, val := range f.Flavors {
 		if val.Name == fn {
@@ -264,6 +417,9 @@ func (f DBFlavors) GetFlavorRef(fn string) string {
 	panic("Flavor not found")
 }
 
+/*
+ Creates JSON string for Create DB request
+*/
 func (db DatabaseReq) MarshalJSON() ([]byte, error) {
 	b := bytes.NewBufferString(`{"instance":{`)
 	if db.Instance.Name == "" {
@@ -283,6 +439,29 @@ func (db DatabaseReq) MarshalJSON() ([]byte, error) {
 	b.WriteString(`"dbtype":{`)
 	b.WriteString(`"name":"mysql",`)
 	b.WriteString(`"version":"5.5"}}}`)
+
+	return b.Bytes(), nil
+}
+
+func (rq DBSecRuleReq) MarshalJSON() ([]byte, error) {
+	b := bytes.NewBufferString(`{"security_group_rule":{`)
+	if rq.SecurityGroupID == "" {
+		return nil, errors.New("Security group ID required")
+	}
+	b.WriteString(fmt.Sprintf(`"security_group_id":"%s",`,
+		rq.SecurityGroupID))
+	if rq.Cidr == "" {
+		return nil, errors.New("Cidr is missing")
+	}
+	b.WriteString(fmt.Sprintf(`"cidr":"%s",`, rq.Cidr))
+	if rq.FromPort == 0 {
+		return nil, errors.New("from_port value is missing")
+	}
+	b.WriteString(fmt.Sprintf(`"from_port":%d,`, rq.FromPort))
+	if rq.ToPort == 0 {
+		return nil, errors.New("to_port value is missing")
+	}
+	b.WriteString(fmt.Sprintf(`"to_port":%d}}`, rq.ToPort))
 
 	return b.Bytes(), nil
 }
