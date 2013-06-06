@@ -53,7 +53,17 @@ var createserverresponse = `
                 "rel": "bookmark"
             }
         ],
-        "addresses": {},
+        "addresses": {
+        "private": [
+            {
+                "addr": "10.4.15.127", 
+                "version": 4
+            }, 
+            {
+                "addr": "15.185.99.229", 
+                "version": 4
+            }
+        ]},
         "tenant_id": "fake_tenant",
         "image": {
             "id": "1361",

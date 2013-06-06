@@ -179,7 +179,7 @@ type ServerResponse struct {
 		UserID         string            `json:"user_id"`
 		Name           string            `json:"name"`
 		Links          []Link            `json:"links"`
-		Addresses      interface{}       `json:"addresses"`
+		Addresses      Addresses         `json:"addresses"`
 		TenantID       string            `json:"tenant_id"`
 		Image          IDLink            `json:"image"`
 		Created        string            `json:"created"`
@@ -194,6 +194,15 @@ type ServerResponse struct {
 		SecurityGroups []SecurityGroup   `json:"security_groups"`
 		Metadata       map[string]string `json:"metadata"`
 	} `json:"server"`
+}
+
+type Addresses struct {
+	Private []Address
+}
+
+type Address struct {
+	Addr    string
+	Version int64
 }
 
 /*
@@ -370,6 +379,24 @@ func (a Access) GetVNCConsole(server_id int64) (string, error) {
 	o := &Output{}
 	err = json.Unmarshal(body, o)
 	return o.C.URL, nil
+}
+
+//  ListServerAddresses will list all the addresses associated with
+//  the provided server_id.
+func (a Access) ListServerAddresses(server_id int64) ([]Address, error) {
+	body, err := a.baseComputeRequest(
+		fmt.Sprintf("servers/%d/ips", server_id), "GET", nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+	type Output struct {
+		Addresses Addresses
+	}
+	o := &Output{}
+	err = json.Unmarshal(body, o)
+	return o.Addresses.Private, nil
+
 }
 
 /*
