@@ -350,6 +350,9 @@ func (a Access) GetConsoleOutput(server_id string, length int) (string, error) {
 	return o.Output_, err
 }
 
+/*
+  GetVNCConsole retrieves the VNC URL for the specified server.
+*/
 func (a Access) GetVNCConsole(server_id int64) (string, error) {
 	jsonbody := `{"os-getVNCConsole": {"type":"novnc"}}`
 	body, err := a.baseComputeRequest(
