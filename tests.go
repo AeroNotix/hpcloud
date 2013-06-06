@@ -42,6 +42,7 @@ func httpTestsSetUp(f http.HandlerFunc) {
 	OBJECT_STORE = ts.URL + "/object_store/"
 	CDN_URL = ts.URL + "/cdn/"
 	COMPUTE_URL = ts.URL + "/compute"
+	RDB_URL = ts.URL + "/rdb"
 	test_account.A.Token.ID = "faketoken"
 	test_account.Authenticated = true
 	if f != nil {
