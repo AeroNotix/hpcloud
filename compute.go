@@ -350,6 +350,25 @@ func (a Access) GetConsoleOutput(server_id string, length int) (string, error) {
 	return o.Output_, err
 }
 
+func (a Access) GetVNCConsole(server_id int64) (string, error) {
+	jsonbody := `{"os-getVNCConsole": {"type":"novnc"}}`
+	body, err := a.baseComputeRequest(
+		fmt.Sprintf("servers/%d/action", server_id), "POST", strings.NewReader(jsonbody),
+	)
+	if err != nil {
+		return "", err
+	}
+	type Output struct {
+		C struct {
+			Type string
+			URL  string
+		} `json:"console"`
+	}
+	o := &Output{}
+	err = json.Unmarshal(body, o)
+	return o.C.URL, nil
+}
+
 /*
   baseComputeRequest encapsulates the main basic request
   which is done for each endpoint in the Compute API.
