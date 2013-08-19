@@ -58,12 +58,10 @@ func (a Access) ObjectStoreUpload(filename, container string, header *http.Heade
 	if err != nil {
 		return err
 	}
+
 	req.Header.Add("Content-Type", mime.TypeByExtension(filepath.Ext(filename)))
 	req.Header.Add("Etag", f.Hash())
 	req.Header.Add("X-Auth-Token", a.AuthToken())
-	if err != nil {
-		return err
-	}
 	if header != nil {
 		for key, value := range *header {
 			for _, s := range value {
@@ -71,6 +69,7 @@ func (a Access) ObjectStoreUpload(filename, container string, header *http.Heade
 			}
 		}
 	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
